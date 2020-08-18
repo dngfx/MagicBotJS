@@ -117,4 +117,5 @@ dist
 
 .idea/
 .config/
+.config/config.js
 magic-bot-js.iml
