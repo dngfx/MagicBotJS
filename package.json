@@ -11,6 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "better-sqlite3": "^7.1.0",
-    "irc-framework": "^4.9.0"
+    "irc-framework": "^4.9.0",
+    "winston": "^3.3.3",
+    "winston-timestamp-colorize": "^1.1.0"
   }
 }
