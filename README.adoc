@@ -1,0 +1,3 @@
+= *MagicBot*
+
+Welcome to MagicBot
