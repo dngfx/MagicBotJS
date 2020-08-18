@@ -4,8 +4,6 @@ const reqdir = require( "require-dir" );
 const path   = require( "path" );
 const fs     = require( "fs" );
 
-var loadedModules = {};
-
 const moduleHandler = {
 	modulePath:    null,
 	loadedModules: null,
