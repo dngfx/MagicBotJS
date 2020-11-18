@@ -5,25 +5,49 @@ const eventHandler = require( "./src/event-handler.js" ).EventHandler;
 const moduleHandler = require( "./src/module-handler.js" ).Modules;
 const messageHandler = require( "./src/message-handler.js" ).messageHandler;
 const channelHandler = require( "./src/channel-handler.js" ).channelHandler;
+const Database = require( "./src/db.js" ).Database;
 
+Database.init();
+
+let dbConfig = Database.getConfig( 1 );
+
+let channels =
+	dbConfig.settings[ "default-channels" ] === undefined
+		? ""
+		: dbConfig.settings[ "default-channels" ];
+
+function getSasl( dbConfig ) {
+	let account, password;
+	[
+		account, password
+	] = dbConfig.settings[ "sasl" ].args.split( ":" );
+
+	return {
+		account:  account,
+		password: password,
+	};
+}
+
+let sasl = dbConfig.settings.sasl !== undefined ? getSasl( dbConfig ) : null;
+console.log( dbConfig.tls, typeof dbConfig.tls );
+console.log( dbConfig );
 const bot = new irc.Client({
-	host:           serverConfig.hostname,
-	nick:           serverConfig.nick,
-	username:       serverConfig.username,
-	gecos:          serverConfig.realname,
-	port:           serverConfig.port,
-	tls:            serverConfig.secure,
-	debug:          serverConfig.debug,
-	enable_chghost: serverConfig.enable_chghost,
-	channels:       serverConfig.channels,
+	host:           dbConfig.hostname,
+	nick:           dbConfig.nickname,
+	username:       dbConfig.username,
+	gecos:          dbConfig.realname,
+	port:           dbConfig.port,
+	version:        dbConfig.settings[ "client-version" ],
+	tls:            dbConfig.tls,
+	debug:          dbConfig.settings.debug,
+	enable_chghost: dbConfig.settings.chghost,
+	auto_connect:   false,
+	account:        sasl,
 
-	account: {
-		account:  serverConfig.username,
-		password: serverConfig.password,
-	},
-
-	rejectUnauthorized: serverConfig.verify_cert,
+	rejectUnauthorized: dbConfig.settings[ "ssl-verify" ],
 });
+
+console.log( bot.options );
 
 function middlewareHandler() {
 	return function( client, raw_events, parsed_events ) {

@@ -1,4 +1,4 @@
-const {createLogger, format, transports} = require( "winston" );
+const {createLogger, format, transports, addColors} = require( "winston" );
 const timestampColor = require( "winston-timestamp-colorize" );
 const config = require( "../.config/config.js" ).Config;
 
@@ -29,7 +29,7 @@ const logConfig = {
 
 const myFormat = format.combine(
 	format.timestamp({format: "YY-MM-DD HH:mm:ss"}),
-	timestampColor({color: "red"}),
+	timestampColor({color: "darkGreen"}),
 	format.colorize(),
 	format.align(),
 	format.printf( ( info ) =>
@@ -44,5 +44,7 @@ const logger = createLogger({
 		}),
 	],
 });
+
+addColors( logConfig.colors );
 
 exports.Logger = logger;

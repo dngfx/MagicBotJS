@@ -3,7 +3,6 @@ const logger = require( "./logging.js" ).Logger;
 const modules = require( "./module-handler.js" ).Modules;
 const cmdPrefix = config.bot_config.irc_server.command_prefix;
 const channelHandler = require( "./channel-handler.js" ).channelHandler;
-
 const eventReactor = {
 	config: null,
 	client: null,
@@ -134,11 +133,11 @@ const eventReactor = {
 const eventHandler = {
 	ircClient:  null,
 	config:     null,
-	calledInit: false,
+	calledInit: null,
 
 	init: function( client ) {
 		self = eventHandler;
-		if( self.config === null ) {
+		if( self.calledInit === null ) {
 			self.config = config.bot_config.irc_server;
 			eventReactor.init( client );
 			channelHandler.init( client );
@@ -146,6 +145,8 @@ const eventHandler = {
 
 			self.calledInit = true;
 		}
+
+		return true;
 	},
 
 	parsedHandler: function( command, event, client, next ) {

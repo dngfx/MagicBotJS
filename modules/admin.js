@@ -7,13 +7,15 @@ const admin = {
 	name:   "Admin",
 
 	reloadmodule: function( str, target, prefix = true ) {
-		console.log( str );
+		self = admin;
+		let name = self.name;
 		str = str[ 0 ];
 
-		console.info( "Beginning module reload " + str );
-		modules.reloadModule( str );
-		console.info( "Reloaded module " + str );
+		let result = modules.reloadModule( str );
+		msgHandler.sendCommandMessage( target, result, prefix, name );
 	},
+
+	reloadallmodules: function( str, target, prefix = true ) {},
 };
 
 module.exports = admin;

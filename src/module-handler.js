@@ -20,8 +20,11 @@ const moduleHandler = {
 
 		let fileName = self.loadedModules[ moduleName ].fileName;
 
-		let module_deleted,
-			message_deleted = self.deleteModule( moduleName );
+		let module_deleted, message_deleted;
+
+		[
+			module_deleted, message_deleted
+		] = self.deleteModule( moduleName );
 
 		if( module_deleted === false ) {
 			return message_deleted;
@@ -29,15 +32,16 @@ const moduleHandler = {
 			logger.debug( message_deleted );
 		}
 
-		let module_loaded,
-			message_loaded = self.loadModule( moduleName, fileName );
+		let module_loaded, message_loaded;
+
+		[
+			module_loaded, message_loaded
+		] = self.loadModule( moduleName, fileName );
 
 		if( module_loaded === true ) {
-			logger.debug( message_loaded );
-
-			return message_loaded;
+			return message_loaded.replace( "Loaded", "Reloaded" );
 		} else {
-			return "Unknown error reloading module";
+			return message_loaded;
 		}
 	},
 
@@ -72,6 +76,8 @@ const moduleHandler = {
 		delete self.loadedModules[ moduleName ];
 		delete require.cache[ name ];
 
+		logger.debug( "Deleted all references" );
+
 		return [
 			true, `Unloaded module ${moduleName} successfully`
 		];
@@ -83,7 +89,10 @@ const moduleHandler = {
 		if( self.moduleExists( moduleName ) ) {
 			logger.error( `Could not load module ${moduleName}, module already exists.` );
 
-			return;
+			return [
+				false,
+				`Could not load module ${moduleName}, module already exists.`,
+			];
 		}
 
 		self.moduleFunctions[ moduleName ] = {};
@@ -98,7 +107,9 @@ const moduleHandler = {
 				if( typeof self.commandPathway[ var_name ] !== "undefined" ) {
 					logger.error( "Could not redefine function " + var_name );
 
-					return;
+					return [
+						false, "Could not redefine function " + var_name
+					];
 				}
 
 				self.moduleFunctions[ moduleName ][ var_name ] = true;
@@ -108,6 +119,10 @@ const moduleHandler = {
 
 		let thisModule = self.loadedModules[ moduleName ];
 		thisModule.client = self.client;
+
+		return [
+			true, `Loaded module ${moduleName} successfully`
+		];
 	},
 
 	initModules: function( client ) {
@@ -123,6 +138,7 @@ const moduleHandler = {
 			if( dot.length === 2 ) {
 				let key = dot[ 0 ];
 
+				logger.info( "[MODULES] Loaded " + key );
 				self.loadModule( key, file );
 			}
 		});
@@ -159,13 +175,12 @@ const moduleHandler = {
 
 	commandExists: function( commandName ) {
 		self = moduleHandler;
-		console.log( self.commandPathway );
 
 		return self.commandPathway.hasOwnProperty( commandName );
 	},
 
 	getModuleFromCmd: function( commandName ) {
-		console.log( self.commandPathway[ commandName ]);
+		self = moduleHandler;
 
 		return self.loadedModules[ self.commandPathway[ commandName ] ];
 	},
