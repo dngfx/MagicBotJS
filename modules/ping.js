@@ -1,13 +1,17 @@
+const msgHandler = require( "../src/message-handler" ).messageHandler;
+
 const ping = {
 	client: "",
-	init:   function( client, logger ) {
-		this.client = client;
-		this.logger = logger;
+	logger: "",
+	name:   "Ping",
+
+	ping: function( str, target, prefix = true ) {
+		let self = ping;
+
+		str = "Pong!";
+
+		msgHandler.sendCommandMessage( target, str, prefix, self.name );
 	},
-	ping:   function( str, target ) {
-		this.client.say( target, "Pong!" );
-		this.logger.info( `[PING] <${ this.client.user.nick }> Pong!` );
-	}
 };
 
 module.exports = ping;

@@ -10,8 +10,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "babel-eslint": "^10.1.0",
     "better-sqlite3": "^7.1.0",
+    "eslint": "^7.13.0",
+    "glob": "^7.1.6",
     "irc-framework": "^4.9.0",
+    "prettier": "^2.1.2",
     "require-dir": "^1.2.0",
     "winston": "^3.3.3",
     "winston-timestamp-colorize": "^1.1.0"

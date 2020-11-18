@@ -120,3 +120,4 @@ dist
 .config/config.js
 magic-bot-js.iml
 workspace.code-workspace
+nongit*
