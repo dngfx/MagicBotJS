@@ -135,7 +135,7 @@ const eventReactor = {
 		}
 
 		if( command === "unknown command" ) {
-			logger.info( `Nonsense command: ${info}` );
+			logger.info( `Nonsense command: ${JSON.stringify( info )}` );
 			console.log( command, info );
 		} else {
 			logger.warn( `Unknown command: ${command}` );
@@ -175,13 +175,15 @@ const eventHandler = {
 	parsedHandler: function( command, event, client, next ) {
 		let self = eventHandler;
 
-		let channels = self.config.channels.join( "," );
-
 		//console.log( command, JSON.stringify( event ) );
 		switch ( command ) {
 			case "registered":
 				logger.info( "Registered to server successfully" );
-				channelHandler.onJoinPart( client, event, "join", channels );
+				channelHandler.onJoinPart(
+					event,
+					"join",
+					channelHandler.default_channels
+				);
 				break;
 
 			case "privmsg":

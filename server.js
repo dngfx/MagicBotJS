@@ -23,6 +23,8 @@ let channels =
 		? ""
 		: dbConfig.settings[ "default-channels" ];
 
+channelHandler.default_channels = channels;
+
 function getSasl( dbConfig ) {
 	let account, password;
 	[
@@ -53,23 +55,12 @@ const bot = new irc.Client({
 	rejectUnauthorized: dbConfig.settings[ "ssl-verify" ],
 });
 
-if( dbConfig.settings.debug === true ) {
-	bot.on( "debug", ( msg ) => {
-		msg = JSON.stringify( msg );
-		logger.debug( `${"[BOT DEBUG]".bold} => ${msg}` );
-	});
-
-	bot.on( "raw", ( msg ) => {
-		msg = JSON.stringify( msg );
-		logger.verbose( `${"[BOT RAW]".bold} => ${msg}` );
-	});
-}
-
 function middlewareHandler() {
 	return function( client, raw_events, parsed_events ) {
 		moduleHandler.client = client;
 
 		serverHandler.init( client );
+		channelHandler.init( client );
 		eventHandler.init( client );
 		channelHandler.init( client );
 		messageHandler.init( client, bot );

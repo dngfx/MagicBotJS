@@ -1,7 +1,8 @@
 const config = require( "../.config/config.js" ).Config;
 const logger = require( "./logging.js" ).Logger;
 const modules = require( "./module-handler" ).Modules;
-const color = require( "irc-colors" );
+const color = require( "irc-colors" ).global();
+const colors = require( "colors" );
 
 let self;
 
@@ -17,10 +18,11 @@ const messageHandler = {
 	},
 
 	generatePrefix: function( prefix, error = false ) {
-		let text =
-			error === true ? color.bold.red( prefix ) : color.bold.green( prefix );
+		let text = !error
+			? `[${prefix.irc.green.bold()}] `
+			: `[${prefix.irc.red.bold()}] `;
 
-		return `[${text}] `;
+		return text;
 	},
 
 	sendMessage: function( target, message ) {
@@ -28,7 +30,9 @@ const messageHandler = {
 		const channel_id = is_channel ? `[${target}] ` : "";
 
 		self.client.say( target, message );
-		logger.info( `${channel_id}<${self.client.user.nick}> ${message}` );
+		logger.info( `${channel_id}<${
+			self.client.user.nick
+		}> ${message.irc.stripColorsAndStyle()}` );
 	},
 
 	sendCommandMessage: function(
@@ -41,12 +45,19 @@ const messageHandler = {
 		let command =
 			prefix !== false ? self.generatePrefix( prefixText, error ) : "";
 
+		if( prefix !== false ) {
+			prefixText = !error ? prefixText.bold.green : prefixText.bold.red;
+			prefixText = `[${prefixText}] `;
+		}
+
 		const channel = target;
 		const is_channel = target[ 0 ] === "#";
 		const channel_id = is_channel === true ? `[${channel}] ` : "";
 
 		self.client.say( target, command + message );
-		logger.info( `${channel_id}<${self.client.user.nick}> ${prefixText}${message}` );
+		logger.info( `${channel_id}<${
+			self.client.user.nick
+		}> ${prefixText}${message.irc.stripColorsAndStyle()}` );
 	},
 };
 

@@ -122,7 +122,8 @@ const serverHandler = {
 			serverMessage = arr.join( " " );
 		}
 
-		let message = type === "serverInfo" ? serverMessage : event.message.trim();
+		let message =
+			type === "serverInfo" ? serverMessage : event.message.trim();
 
 		let network = self.client.network.name;
 
@@ -143,11 +144,20 @@ const serverHandler = {
 
 	unknown: function( client, info, command ) {
 		const nonsenseCommands = [
-			"251", "252", "253", "254", "255", "265", "266"
+			"251",
+			"252",
+			"253",
+			"254",
+			"255",
+			"265",
+			"266",
 		];
 
-		if( nonsenseCommands.includes( command ) || command === "unknown command" ) {
-			logger.info( `Nonsense command: ${info.command}` );
+		if(
+			nonsenseCommands.includes( command ) ||
+			command === "unknown command"
+		) {
+			logger.info( `Nonsense command: ${JSON.stringify( info.command )}` );
 			console.log( command, info );
 		} else {
 			logger.warn( `Unknown command: ${command}` );

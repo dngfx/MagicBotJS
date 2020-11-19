@@ -4,16 +4,26 @@ const modules = require( "./module-handler.js" ).Modules;
 const cmdPrefix = config.bot_config.irc_server.command_prefix;
 const Database = require( "../src/db.js" ).Database;
 const serverHandler = require( "./server-handler" ).serverHandler;
+const userHandler = require( "./user-handler.js" ).userHandler;
 
 /**
  * @returns channelHandler
+ * AW SHIT SON DO YOU HAVE READ/WRITE PERMISSIONS?
  */
 let self;
-
+// like i said i backed up this folder so it doesn't matter if things go wrong
+// NOW UR BLIND
+// huh? did I do something wrong? nah i changed the colour theme ,-  didn't work for me, still got the same one, do you want a dark or light one - doesn't matter to me, I've got light one and it's ok
+// so, what are we doing today?
+// i'm just about to test whether i can get a list of all users in a room
+// sure, good idea. let me watch, we could do some pair programming if anything
+// yeah for sure, do you wanna try a module?
+// I'm good for now, let me watch and get a gist of what this bot does
 const channelHandler = {
-	config:   null,
-	client:   null,
-	channels: {},
+	config:           null,
+	client:           null,
+	channels:         {},
+	default_channels: null,
 
 	init: function( client ) {
 		self = channelHandler;
@@ -21,9 +31,10 @@ const channelHandler = {
 		self.config = config.bot_config.irc_server;
 	},
 
-	joinChannel: function( client, channel ) {
-		if( channel.match( "," ) ) {
+	joinChannel: function( channel ) {
+		if( typeof channel === "string" && channel.includes( "," ) ) {
 			let channels = channel.split( "," );
+			console.log( channels );
 			channels.forEach( ( channel_name ) => {
 				logger.info( "Joining Channel " + channel_name );
 				self.channels[ channel_name ] = {};
@@ -33,34 +44,59 @@ const channelHandler = {
 			self.channels[ channel ] = {};
 		}
 
-		client.join( channel );
+		self.client.join( channel );
 	},
 
-	partChannel: function( client, channel ) {
-		client.part( channel );
+	partChannel: function( channel ) {
+		self.client.part( channel );
 		logger.info( "Parting Channel " + channel );
 	},
 
-	topic: function( client, info ) {
+	topic: function( info ) {
 		console.log( info );
 		self.channels[ info.channel ].topic = {};
 		self.channels[ info.channel ].topic = info.topic;
 	},
 
-	onJoinPart: function( client, event, joinpart, channels = null ) {
-		if( client.user.nick === event.nick ) {
-			if( joinpart === "join" ) {
-				if( typeof self.channels[ event.channel ] === "undefined" ) {
-					self.channels[ event.channel ] = {};
+	onJoinPart: function( event, joinpart, channels = null ) {
+		if( self.client.user.nick === event.nick ) {
+			if( channels === null ) {
+				return;
+			}
+
+			if(
+				joinpart === "join" &&
+				channels.length > 0 &&
+				typeof channels !== "string"
+			) {
+				for( const channel in channels ) {
+					if( typeof self.channels[ channel ] === "undefined" ) {
+						self.channels[ channel ] = {};
+						logger.info( `${event.nick} joined ${channel}` );
+					}
 				}
 
-				let channel = channels !== null ? channels : event.channel;
+				self.joinChannel( channels.join( "," ) );
 
-				self.joinChannel( channels );
+				return;
 			} else {
-				delete self.channels[ event.channel ];
-				self.partChannel( event.channel );
+				if( joinpart === "join" ) {
+					if( typeof self.channels[ channels ] === "undefined" ) {
+						self.channels[ channels ] = {};
+					}
+
+					let channel = channels !== null ? channels : event.channel;
+
+					self.joinChannel( channel );
+
+					return;
+				}
 			}
+
+			let channel = channels;
+
+			delete self.channels[ channel ];
+			self.partChannel( channel );
 		}
 
 		const action = joinpart === "join" ? "joined" : "parted";
@@ -81,12 +117,22 @@ const channelHandler = {
 		for( const user in users ) {
 			cur_user = users[ user ];
 
+			userHandler.addUser( cur_user );
+
 			self.addUserToDb( cur_user );
 			self.channels[ channel ][ cur_user.nick ] = {
 				nick:  cur_user.nick,
 				ident: cur_user.ident,
 			};
 		}
+	},
+
+	getChannelUsers: function( channel ) {
+		if( typeof self.channels[ channel ] === "undefined" ) {
+			return false;
+		}
+
+		return self.channels[ channel ];
 	},
 
 	addUserToDb: function( user ) {
@@ -115,11 +161,11 @@ const channelHandler = {
 		switch ( command ) {
 			case "join":
 			case "part":
-				self.onJoinPart( client, event, command );
+				self.onJoinPart( event, command );
 				break;
 
 			case "topic":
-				self.topic( client, event );
+				self.topic( event );
 				break;
 
 			case "userlist":
