@@ -1,5 +1,5 @@
 const msgHandler = require( "../src/message-handler" ).messageHandler;
-const utils = require( "../src/utils.js" ).utils;
+const utils      = require( "../src/utils.js" ).utils;
 
 const ping = {
 	client: "",
@@ -7,14 +7,14 @@ const ping = {
 	name:   "Ping",
 
 	ping: function( str, event, prefix = true ) {
-		let self = ping;
-		let target = event.target;
+		const self   = ping;
+		const target = event.target;
 
 		const received_time = event.time;
-		let fasttime = process.hrtime.bigint();
+		const fasttime      = process.hrtime.bigint();
 
 		let difference = parseInt( fasttime - received_time ) / 1000;
-		difference = difference.toString().split( "." )[ 0 ];
+		difference     = difference.toString().split( "." )[ 0 ];
 
 		str = `Pong! Delay: 0.${difference} seconds.`;
 

@@ -1,8 +1,8 @@
-const config = require( "../.config/config.js" ).Config;
+const config    = require( "../.config/config.js" ).Config;
 const cmdPrefix = config.bot_config.irc_server.command_prefix;
-const colors = require( "colors" );
-const logger = require( "./logging.js" ).Logger;
-const modules = require( "./module-handler.js" ).Modules;
+const colors    = require( "colors" );
+const logger    = require( "./logging.js" ).Logger;
+const modules   = require( "./module-handler.js" ).Modules;
 
 /**
  * @alias serverHandler
@@ -23,8 +23,8 @@ const serverHandler = {
 
 	serverOptions: function( event ) {
 		let server_options = {};
-		let options = event.options;
-		let network = self.client.network.name;
+		const options      = event.options;
+		const network      = self.client.network.name;
 
 		if( typeof self.servers[ network ] === "undefined" ) {
 			self.servers[ network ] = {};
@@ -57,8 +57,8 @@ const serverHandler = {
 	},
 
 	capabilities: function( event ) {
-		let caps = Object.keys( event.capabilities );
-		self.caps[ self.config.level.server_name ] = {};
+		const caps                                      = Object.keys( event.capabilities );
+		self.caps[ self.config.level.server_name ]      = {};
 		self.caps[ self.config.level.server_name ].caps = caps;
 	},
 
@@ -68,11 +68,11 @@ const serverHandler = {
 			high: 266,
 		};
 
-		let type = typeof event.type === "undefined" ? command : event.type;
+		const type = typeof event.type === "undefined" ? command : event.type;
 
 		let number;
 
-		let isNumber = !isNaN( event.command );
+		const isNumber = !isNaN( event.command );
 		if( isNumber ) {
 			number = event.command.valueOf();
 		}
@@ -117,21 +117,21 @@ const serverHandler = {
 
 		let serverMessage;
 		if( type === "serverInfo" ) {
-			let arr = event.params;
+			const arr = event.params;
 			arr.shift();
 			serverMessage = arr.join( " " );
 		}
 
-		let message =
+		const message =
 			type === "serverInfo" ? serverMessage : event.message.trim();
 
-		let network = self.client.network.name;
+		const network = self.client.network.name;
 
 		if( typeof self.server_notices[ network ] === "undefined" ) {
 			self.server_notices[ network ] = new Array();
 		}
 
-		let notices = self.server_notices[ network ];
+		const notices = self.server_notices[ network ];
 
 		if( typeof notices[ message ] !== "undefined" ) {
 			return;
@@ -173,5 +173,5 @@ const serverHandler = {
 	},
 };
 
-self = serverHandler;
+self                  = serverHandler;
 exports.serverHandler = serverHandler;

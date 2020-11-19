@@ -1,24 +1,21 @@
-const colors = require( "colors" );
-colors.enable();
-
-const irc = require( "irc-framework" );
-const config = require( "./.config/config.js" ).Config;
-
+const colors   = require( "colors" );
+const irc      = require( "irc-framework" );
+const config   = require( "./.config/config.js" ).Config;
 const Database = require( "./src/db.js" ).Database;
 Database.init();
-let dbConfig = Database.getConfig( 1 );
+const dbConfig = Database.getConfig( 1 );
 
-const serverConfig = config.bot_config.irc_server;
-const eventHandler = require( "./src/event-handler.js" ).EventHandler;
-const moduleHandler = require( "./src/module-handler.js" ).Modules;
+const serverConfig   = config.bot_config.irc_server;
+const eventHandler   = require( "./src/event-handler.js" ).EventHandler;
+const moduleHandler  = require( "./src/module-handler.js" ).Modules;
 const messageHandler = require( "./src/message-handler.js" ).messageHandler;
 const channelHandler = require( "./src/channel-handler.js" ).channelHandler;
-const serverHandler = require( "./src/server-handler.js" ).serverHandler;
-const userHandler = require( "./src/user-handler.js" ).userHandler;
+const serverHandler  = require( "./src/server-handler.js" ).serverHandler;
+const userHandler    = require( "./src/user-handler.js" ).userHandler;
 
 const logger = require( "./src/logging.js" ).Logger;
 
-let channels =
+const channels =
 	dbConfig.settings[ "default-channels" ] === undefined
 		? ""
 		: dbConfig.settings[ "default-channels" ];
@@ -26,10 +23,12 @@ let channels =
 channelHandler.default_channels = channels;
 
 function getSasl( dbConfig ) {
-	let account, password;
-	[
+	const val = dbConfig.settings[ "sasl" ].args.split( ":" );
+	const [
 		account, password
-	] = dbConfig.settings[ "sasl" ].args.split( ":" );
+	] = [
+		val[ 0 ], val[ 1 ]
+	];
 
 	return {
 		account:  account,
@@ -37,8 +36,8 @@ function getSasl( dbConfig ) {
 	};
 }
 
-let sasl = dbConfig.settings.sasl !== undefined ? getSasl( dbConfig ) : null;
-const bot = new irc.Client({
+const sasl = dbConfig.settings.sasl !== undefined ? getSasl( dbConfig ) : null;
+const bot  = new irc.Client({
 	host:               dbConfig.hostname,
 	nick:               dbConfig.nickname,
 	username:           dbConfig.username,
@@ -55,6 +54,7 @@ const bot = new irc.Client({
 	rejectUnauthorized: dbConfig.settings[ "ssl-verify" ],
 });
 
+// eslint-disable-next-line no-constant-condition
 if( false ) {
 	bot.on( "debug", ( msg ) => {
 		msg = JSON.stringify( msg );

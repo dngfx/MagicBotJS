@@ -1,9 +1,9 @@
-const Database = require( "../src/db.js" ).Database;
-const config = require( "../.config/config.js" ).Config;
-const logger = require( "./logging.js" ).Logger;
-const modules = require( "./module-handler.js" ).Modules;
-const cmdPrefix = config.bot_config.irc_server.command_prefix;
-const serverHandler = require( "./server-handler.js" ).serverHandler;
+const Database       = require( "../src/db.js" ).Database;
+const config         = require( "../.config/config.js" ).Config;
+const logger         = require( "./logging.js" ).Logger;
+const modules        = require( "./module-handler.js" ).Modules;
+const cmdPrefix      = config.bot_config.irc_server.command_prefix;
+const serverHandler  = require( "./server-handler.js" ).serverHandler;
 const channelHandler = require( "./channel-handler.js" ).channelHandler;
 
 /**
@@ -17,14 +17,14 @@ const userHandler = {
 	users:  {},
 
 	init: function( client ) {
-		self = userHandler;
+		self        = userHandler;
 		self.client = client;
 		self.config = config;
 
-		let network = Database.server_config;
-		let alias = Database.server_alias;
+		const network = Database.server_config;
+		const alias   = Database.server_alias;
 
-		let network_name = alias[ "1" ];
+		const network_name = alias[ "1" ];
 	},
 
 	addUser: function( user ) {
@@ -40,10 +40,10 @@ const userHandler = {
 	},
 
 	getUsersInChannel: function( channel ) {
-		let users = channelHandler.getChannelUsers( channel );
+		const users = channelHandler.getChannelUsers( channel );
 		console.log( users );
 	},
 };
 
-self = userHandler;
+self                = userHandler;
 exports.userHandler = userHandler;

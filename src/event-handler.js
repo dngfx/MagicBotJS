@@ -1,10 +1,11 @@
-const config = require( "../.config/config.js" ).Config;
-const logger = require( "./logging.js" ).Logger;
-const modules = require( "./module-handler.js" ).Modules;
-const cmdPrefix = config.bot_config.irc_server.command_prefix;
+const config         = require( "../.config/config.js" ).Config;
+const logger         = require( "./logging.js" ).Logger;
+const modules        = require( "./module-handler.js" ).Modules;
+const cmdPrefix      = config.bot_config.irc_server.command_prefix;
 const channelHandler = require( "./channel-handler.js" ).channelHandler;
-const serverHandler = require( "./server-handler.js" ).serverHandler;
+const serverHandler  = require( "./server-handler.js" ).serverHandler;
 
+let self;
 const eventReactor = {
 	config: null,
 	client: null,
@@ -12,15 +13,15 @@ const eventReactor = {
 
 	mode: function( client, event ) {
 		const target = event.target;
-		const nick = event.nick;
-		const mode = event.modes;
+		const nick   = event.nick;
+		const mode   = event.modes;
 
-		const raw_modes = event.raw_modes;
+		const raw_modes  = event.raw_modes;
 		const raw_params = event.raw_params;
 
-		let target_nick = "";
+		let target_nick      = "";
 		let exit_immediately = 0;
-		let plural = raw_params.length > 2 ? "s" : "";
+		const plural         = raw_params.length > 2 ? "s" : "";
 
 		if( raw_params.length > 0 ) {
 			// Are they all for the same person (they should always be for the same person)
@@ -64,8 +65,8 @@ const eventReactor = {
 	},
 
 	privateMessage: function( client, message ) {
-		const is_channel = message.target[ 0 ] === "#";
-		const is_private = message.target === client.user.nick;
+		const is_channel    = message.target[ 0 ] === "#";
+		const is_private    = message.target === client.user.nick;
 		const maybe_command = message.message[ 0 ] === cmdPrefix;
 
 		message.time = process.hrtime.bigint();
@@ -84,14 +85,14 @@ const eventReactor = {
 		logger.info( str );
 
 		if( maybe_command && is_channel ) {
-			const cmd = message.message.split( cmdPrefix )[ 1 ];
-			let args = cmd.split( " " );
+			const cmd   = message.message.split( cmdPrefix )[ 1 ];
+			let args    = cmd.split( " " );
 			let cmdText = "";
 			if( args.length < 2 ) {
 				cmdText = cmd;
 			} else {
 				cmdText = cmd.split( " " )[ 0 ];
-				args = cmd.split( " " ).slice( 1 );
+				args    = cmd.split( " " ).slice( 1 );
 			}
 
 			if( modules.commandExists( cmdText ) ) {
@@ -120,7 +121,7 @@ const eventReactor = {
 
 		let number;
 
-		let isNumber = !isNaN( info.command );
+		const isNumber = !isNaN( info.command );
 		if( isNumber ) {
 			number = info.command.valueOf();
 		}
@@ -159,7 +160,6 @@ const eventHandler = {
 	calledInit: null,
 
 	init: function( client ) {
-		self = eventHandler;
 		if( self.calledInit === null ) {
 			self.config = config.bot_config.irc_server;
 			eventReactor.init( client );
@@ -173,8 +173,6 @@ const eventHandler = {
 	},
 
 	parsedHandler: function( command, event, client, next ) {
-		let self = eventHandler;
-
 		//console.log( command, JSON.stringify( event ) );
 		switch ( command ) {
 			case "registered":
@@ -239,4 +237,5 @@ const eventHandler = {
 	},
 };
 
+self                 = eventHandler;
 exports.EventHandler = eventHandler;
