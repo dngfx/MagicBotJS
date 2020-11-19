@@ -1,3 +1,6 @@
+const colors = require( "colors" );
+colors.enable();
+
 const irc = require( "irc-framework" );
 const config = require( "./.config/config.js" ).Config;
 
@@ -12,6 +15,8 @@ const messageHandler = require( "./src/message-handler.js" ).messageHandler;
 const channelHandler = require( "./src/channel-handler.js" ).channelHandler;
 const serverHandler = require( "./src/server-handler.js" ).serverHandler;
 const userHandler = require( "./src/user-handler.js" ).userHandler;
+
+const logger = require( "./src/logging.js" ).Logger;
 
 let channels =
 	dbConfig.settings[ "default-channels" ] === undefined
@@ -55,6 +60,7 @@ function middlewareHandler() {
 		eventHandler.init( client );
 		channelHandler.init( client );
 		messageHandler.init( client );
+		userHandler.init( client );
 
 		parsed_events.use( eventHandler.parsedHandler );
 	};

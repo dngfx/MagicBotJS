@@ -68,6 +68,19 @@ const eventReactor = {
 		const is_private = message.target === client.user.nick;
 		const maybe_command = message.message[ 0 ] === cmdPrefix;
 
+		let logBuild = "";
+		if( is_channel ) {
+			logBuild += `[${message.target}] `;
+		}
+
+		if( is_private ) {
+			logBuild += `[PRIVATE MESSAGE FROM ${message.nick}] `;
+		}
+
+		const str = `${logBuild}<${message.nick}> ${message.message}`;
+
+		logger.info( str );
+
 		if( maybe_command && is_channel ) {
 			const cmd = message.message.split( cmdPrefix )[ 1 ];
 			let args = cmd.split( " " );
@@ -85,19 +98,6 @@ const eventReactor = {
 				cmdModule[ cmdText ]( args, message.target );
 			}
 		}
-
-		let logBuild = "";
-		if( is_channel ) {
-			logBuild += `[${message.target}] `;
-		}
-
-		if( is_private ) {
-			logBuild += `[PRIVATE MESSAGE FROM ${message.nick}] `;
-		}
-
-		const str = `${logBuild}<${message.nick}> ${message.message}`;
-
-		logger.info( str );
 	},
 
 	unknown: function( client, info, command ) {

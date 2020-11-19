@@ -19,10 +19,21 @@ const userHandler = {
 		self = userHandler;
 		self.client = client;
 		self.config = config;
+
+		let network = Database.server_config;
+		let alias = Database.server_alias;
+
+		let network_name = alias[ "1" ];
+
+		self.loadUsers( network[ network_name ]);
+	},
+
+	loadUsers: function( server ) {
+		//console.log( server );
 	},
 
 	updateUser: function( server, channel, user ) {
-
+		console.log( server, channel, user );
 	},
 };
 

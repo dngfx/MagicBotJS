@@ -17,7 +17,7 @@ const messageHandler = {
 		let text =
 			error === true ? color.bold.red( prefix ) : color.bold.green( prefix );
 
-		return "[" + text + "] ";
+		return `[${text}] `;
 	},
 
 	sendMessage: function( target, message ) {

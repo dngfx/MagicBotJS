@@ -9,7 +9,7 @@ const db = new sqlite( db_path, {
 	timeout:       5000,
 });
 
-db.pragma( "journal_mode = WAL" );
+//db.pragma( "journal_mode = WAL" );
 db.pragma( "synchronous = FULL" );
 
 const database = {

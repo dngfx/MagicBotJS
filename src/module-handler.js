@@ -15,7 +15,7 @@ const moduleHandler = {
 		if( !self.moduleExists( moduleName ) ) {
 			logger.error( `Could not reload module ${moduleName.bold}, module does not exist.` );
 
-			return `Could not reload module ${moduleName.bold}, module does not exist.`;
+			return `Could not reload module ${moduleName}, module does not exist.`;
 		}
 
 		let fileName = self.loadedModules[ moduleName ].fileName;
@@ -53,7 +53,7 @@ const moduleHandler = {
 
 			return [
 				false,
-				`Could not unload module ${moduleName.bold}, module does not exist.`,
+				`Could not unload module ${moduleName}, module does not exist.`,
 			];
 		}
 
@@ -79,7 +79,7 @@ const moduleHandler = {
 		logger.debug( "Deleted all references" );
 
 		return [
-			true, `Unloaded module ${moduleName.bold} successfully`
+			true, `Unloaded module ${moduleName} successfully`
 		];
 	},
 
@@ -91,7 +91,7 @@ const moduleHandler = {
 
 			return [
 				false,
-				`Could not load module ${moduleName.bold}, module already exists.`,
+				`Could not load module ${moduleName}, module already exists.`,
 			];
 		}
 
@@ -108,7 +108,7 @@ const moduleHandler = {
 					logger.error( "Could not redefine function " + var_name.bold );
 
 					return [
-						false, "Could not redefine function " + var_name.bold
+						false, "Could not redefine function " + var_name
 					];
 				}
 
@@ -121,7 +121,7 @@ const moduleHandler = {
 		thisModule.client = self.client;
 
 		return [
-			true, `Loaded module ${moduleName.bold} successfully`
+			true, `Loaded module ${moduleName} successfully`
 		];
 	},
 
