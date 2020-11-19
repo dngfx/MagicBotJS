@@ -2,6 +2,13 @@ const config = require( "../.config/config.js" ).Config;
 const logger = require( "./logging.js" ).Logger;
 const modules = require( "./module-handler.js" ).Modules;
 const cmdPrefix = config.bot_config.irc_server.command_prefix;
+const Database = require( "../src/db.js" ).Database;
+const serverHandler = require( "./server-handler.js" ).serverHandler;
+
+/**
+ * @returns channelHandler
+ */
+let self;
 
 const channelHandler = {
 	config:   null,
@@ -15,7 +22,6 @@ const channelHandler = {
 	},
 
 	joinChannel: function( client, channel ) {
-		self = channelHandler;
 		client.join( channel );
 
 		if( channel.match( "," ) ) {
@@ -36,6 +42,7 @@ const channelHandler = {
 	},
 
 	topic: function( client, info ) {
+		self.channels[ info.channel ].topic = {};
 		self.channels[ info.channel ].topic = info.topic;
 	},
 
@@ -49,6 +56,41 @@ const channelHandler = {
 		logger.info( `${info.nick} ${action} ${info.channel}` );
 	},
 
+	channelUserList: function( event ) {
+		let channel = event.channel;
+
+		if( typeof self.channels[ channel ] === "undefined" ) {
+			self.channels[ channel ] = {};
+		}
+
+		let users = event.users;
+		let cur_user;
+
+		for( const user in users ) {
+			cur_user = users[ user ];
+
+			self.addUserToDb( cur_user );
+			self.channels[ channel ][ cur_user.nick ] = {
+				nick:  cur_user.nick,
+				ident: cur_user.ident,
+			};
+		}
+	},
+
+	addUserToDb: function( user ) {
+		let network = self.client.network.name;
+		let network_id = Database.server_config[ network ].server_id;
+
+		Database.insertOneRow(
+			"users",
+			{
+				server_id: network_id,
+				nickname:  user.nick,
+			},
+			true
+		);
+	},
+
 	serverNotice: function( event ) {
 		if( event.type !== "notice" ) {
 			return;
@@ -58,8 +100,6 @@ const channelHandler = {
 	},
 
 	handleCommand: function( command, event, client, next ) {
-		self = channelHandler;
-
 		switch ( command ) {
 			case "join":
 			case "part":
@@ -70,6 +110,10 @@ const channelHandler = {
 				self.topic( client, event );
 				break;
 
+			case "userlist":
+				self.channelUserList( event );
+				break;
+
 			default:
 				logger.debug( "Unknown command " + command );
 				break;
@@ -77,8 +121,6 @@ const channelHandler = {
 	},
 
 	getChannelTopic: function( channel ) {
-		self = channelHandler;
-
 		if( self.channels.hasOwnProperty( channel ) ) {
 			return self.channels[ channel ].topic;
 		} else {
@@ -87,4 +129,5 @@ const channelHandler = {
 	},
 };
 
+self = channelHandler;
 exports.channelHandler = channelHandler;

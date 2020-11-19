@@ -101,7 +101,7 @@
     ],
     "function-paren-newline": 2,
     "global-require": "off",
-    "guard-for-in": 2,
+    "guard-for-in": 0,
     "indent": [
       "error",
       "tab",

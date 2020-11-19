@@ -3,9 +3,12 @@ const logger = require( "./logging.js" ).Logger;
 const modules = require( "./module-handler.js" ).Modules;
 const cmdPrefix = config.bot_config.irc_server.command_prefix;
 const channelHandler = require( "./channel-handler.js" ).channelHandler;
+const serverHandler = require( "./server-handler.js" ).serverHandler;
+
 const eventReactor = {
 	config: null,
 	client: null,
+	server: null,
 
 	mode: function( client, event ) {
 		const target = event.target;
@@ -64,7 +67,6 @@ const eventReactor = {
 		const is_channel = message.target[ 0 ] === "#";
 		const is_private = message.target === client.user.nick;
 		const maybe_command = message.message[ 0 ] === cmdPrefix;
-		console.log( message.message );
 
 		if( maybe_command && is_channel ) {
 			const cmd = message.message.split( cmdPrefix )[ 1 ];
@@ -72,7 +74,6 @@ const eventReactor = {
 			let cmdText = "";
 			if( args.length < 2 ) {
 				cmdText = cmd;
-				console.log( message.message.split( " " ) );
 			} else {
 				cmdText = cmd.split( " " )[ 0 ];
 				args = cmd.split( " " ).slice( 1 );
@@ -99,26 +100,46 @@ const eventReactor = {
 		logger.info( str );
 	},
 
-	serverNotice: function( event ) {
-		if( event.type !== "notice" ) {
+	unknown: function( client, info, command ) {
+		const nonsenseCommands = {
+			low:  251,
+			high: 266,
+		};
+
+		const ignoreCommands = [
+			"003", "004"
+		];
+
+		if( ignoreCommands.includes( info.command ) ) {
+			logger.debug( `Ignored command ${info.command}` );
+
 			return;
 		}
 
-		logger.info( `[SERVER NOTICE] ${event.message}` );
-	},
+		let number;
 
-	unknown: function( client, info, command ) {
-		const nonsenseCommands = [
-			"251", "252", "253", "254", "255", "265", "266"
-		];
+		let isNumber = !isNaN( info.command );
+		if( isNumber ) {
+			number = info.command.valueOf();
+		}
+		if(
+			isNumber &&
+			number >= nonsenseCommands.low &&
+			number <= nonsenseCommands.high
+		) {
+			serverHandler.serverMessage( info, info.command );
 
-		if( nonsenseCommands.includes( command ) || command === "unknown command" ) {
-			logger.info( `Nonsense command: ${info.command}` );
+			return;
+		}
+
+		if( command === "unknown command" ) {
+			logger.info( `Nonsense command: ${info}` );
+			console.log( command, info );
 		} else {
 			logger.warn( `Unknown command: ${command}` );
-			/*console.log( "--- " + command + " START ---" );
+			console.log( "--- " + command + " START ---" );
 			console.log( info );
-			console.log( "--- " + command + " END -----" );*/
+			console.log( "--- " + command + " END -----" );
 		}
 	},
 
@@ -155,11 +176,6 @@ const eventHandler = {
 		let channels = self.config.channels.join( "," );
 
 		//console.log( command, JSON.stringify( event ) );
-
-		if( event.from_server === true ) {
-			eventReactor.serverNotice( event );
-		}
-
 		switch ( command ) {
 			case "registered":
 				logger.info( "Registered to server successfully" );
@@ -170,8 +186,29 @@ const eventHandler = {
 				eventReactor.privateMessage( client, event );
 				break;
 
+			case "loggedin":
+			case "account":
+			case "cap ack":
+			case "server options":
+				serverHandler.serverMessage( event, command );
+				break;
+
+			case "message":
+			case "notice":
+				if( event.from_server === true ) {
+					serverHandler.serverMessage( event, command );
+				}
+				break;
+
 			case "pong":
 				eventReactor.pong( client, event );
+				break;
+
+			case "mode":
+				eventReactor.mode( client, event );
+				break;
+
+			case "cap ls":
 				break;
 
 			case "join":
@@ -183,6 +220,10 @@ const eventHandler = {
 				channelHandler.handleCommand( command, event, client, next );
 
 				return;
+
+			// Events safe to ignore
+			case "motd":
+				break;
 
 			default:
 			case "unknown command":

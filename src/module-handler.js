@@ -13,9 +13,9 @@ const moduleHandler = {
 	reloadModule: function( moduleName ) {
 		self = moduleHandler;
 		if( !self.moduleExists( moduleName ) ) {
-			logger.error( `Could not reload module ${moduleName}, module does not exist.` );
+			logger.error( `Could not reload module ${moduleName.bold}, module does not exist.` );
 
-			return `Could not reload module ${moduleName}, module does not exist.`;
+			return `Could not reload module ${moduleName.bold}, module does not exist.`;
 		}
 
 		let fileName = self.loadedModules[ moduleName ].fileName;
@@ -49,11 +49,11 @@ const moduleHandler = {
 		self = moduleHandler;
 
 		if( !self.moduleExists( moduleName ) ) {
-			logger.error( `Could not unload module ${moduleName}, module does not exist.` );
+			logger.error( `Could not unload module ${moduleName.bold}, module does not exist.` );
 
 			return [
 				false,
-				`Could not unload module ${moduleName}, module does not exist.`,
+				`Could not unload module ${moduleName.bold}, module does not exist.`,
 			];
 		}
 
@@ -79,7 +79,7 @@ const moduleHandler = {
 		logger.debug( "Deleted all references" );
 
 		return [
-			true, `Unloaded module ${moduleName} successfully`
+			true, `Unloaded module ${moduleName.bold} successfully`
 		];
 	},
 
@@ -87,11 +87,11 @@ const moduleHandler = {
 		self = moduleHandler;
 
 		if( self.moduleExists( moduleName ) ) {
-			logger.error( `Could not load module ${moduleName}, module already exists.` );
+			logger.error( `Could not load module ${moduleName.bold}, module already exists.` );
 
 			return [
 				false,
-				`Could not load module ${moduleName}, module already exists.`,
+				`Could not load module ${moduleName.bold}, module already exists.`,
 			];
 		}
 
@@ -105,10 +105,10 @@ const moduleHandler = {
 					typeof self.loadedModules[ moduleName ][ var_name ] === "function";
 			if( isFunction === true ) {
 				if( typeof self.commandPathway[ var_name ] !== "undefined" ) {
-					logger.error( "Could not redefine function " + var_name );
+					logger.error( "Could not redefine function " + var_name.bold );
 
 					return [
-						false, "Could not redefine function " + var_name
+						false, "Could not redefine function " + var_name.bold
 					];
 				}
 
@@ -121,7 +121,7 @@ const moduleHandler = {
 		thisModule.client = self.client;
 
 		return [
-			true, `Loaded module ${moduleName} successfully`
+			true, `Loaded module ${moduleName.bold} successfully`
 		];
 	},
 
@@ -138,11 +138,11 @@ const moduleHandler = {
 			if( dot.length === 2 ) {
 				let key = dot[ 0 ];
 
-				logger.info( "[MODULES] Loaded " + key );
+				logger.info( `${"[MODULES]".bold} Loaded ${key}` );
 				self.loadModule( key, file );
 			}
 		});
-		logger.info( "Module load complete" );
+		logger.info( `${"[MODULES]".bold} Module load complete` );
 	},
 
 	returnModule: function( moduleName ) {
