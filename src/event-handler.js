@@ -68,6 +68,8 @@ const eventReactor = {
 		const is_private = message.target === client.user.nick;
 		const maybe_command = message.message[ 0 ] === cmdPrefix;
 
+		message.time = process.hrtime.bigint();
+
 		let logBuild = "";
 		if( is_channel ) {
 			logBuild += `[${message.target}] `;
@@ -95,7 +97,7 @@ const eventReactor = {
 			if( modules.commandExists( cmdText ) ) {
 				const cmdModule = modules.getModuleFromCmd( cmdText );
 
-				cmdModule[ cmdText ]( args, message.target );
+				cmdModule[ cmdText ]( args, message );
 			}
 		}
 	},
@@ -179,7 +181,7 @@ const eventHandler = {
 		switch ( command ) {
 			case "registered":
 				logger.info( "Registered to server successfully" );
-				channelHandler.joinChannel( client, channels );
+				channelHandler.onJoinPart( client, event, "join", channels );
 				break;
 
 			case "privmsg":

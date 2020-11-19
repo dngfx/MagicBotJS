@@ -24,12 +24,10 @@ const userHandler = {
 		let alias = Database.server_alias;
 
 		let network_name = alias[ "1" ];
-
-		self.loadUsers( network[ network_name ]);
 	},
 
 	loadUsers: function( server ) {
-		//console.log( server );
+		console.log( server );
 	},
 
 	updateUser: function( server, channel, user ) {

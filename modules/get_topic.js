@@ -6,8 +6,9 @@ const get_topic = {
 	logger: "",
 	name:   "Topic",
 
-	topic: function( str, target, prefix = true ) {
+	topic: function( str, event, prefix = true ) {
 		let self = get_topic;
+		let target = event.target;
 		const is_channel = target[ 0 ] === "#";
 
 		if( !is_channel ) {

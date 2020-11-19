@@ -37,20 +37,33 @@ function getSasl( dbConfig ) {
 
 let sasl = dbConfig.settings.sasl !== undefined ? getSasl( dbConfig ) : null;
 const bot = new irc.Client({
-	host:           dbConfig.hostname,
-	nick:           dbConfig.nickname,
-	username:       dbConfig.username,
-	gecos:          dbConfig.realname,
-	port:           dbConfig.port,
-	version:        dbConfig.settings[ "client-version" ],
-	tls:            dbConfig.tls,
-	debug:          dbConfig.settings.debug,
-	enable_chghost: dbConfig.settings.chghost,
-	auto_connect:   false,
-	account:        sasl,
+	host:               dbConfig.hostname,
+	nick:               dbConfig.nickname,
+	username:           dbConfig.username,
+	gecos:              dbConfig.realname,
+	port:               dbConfig.port,
+	version:            dbConfig.settings[ "client-version" ],
+	tls:                dbConfig.tls,
+	debug:              dbConfig.settings.debug,
+	enable_chghost:     dbConfig.settings.chghost,
+	enable_echomessage: dbConfig.settings[ "echo-message" ],
+	auto_connect:       false,
+	account:            sasl,
 
 	rejectUnauthorized: dbConfig.settings[ "ssl-verify" ],
 });
+
+if( dbConfig.settings.debug === true ) {
+	bot.on( "debug", ( msg ) => {
+		msg = JSON.stringify( msg );
+		logger.debug( `${"[BOT DEBUG]".bold} => ${msg}` );
+	});
+
+	bot.on( "raw", ( msg ) => {
+		msg = JSON.stringify( msg );
+		logger.verbose( `${"[BOT RAW]".bold} => ${msg}` );
+	});
+}
 
 function middlewareHandler() {
 	return function( client, raw_events, parsed_events ) {
@@ -59,7 +72,7 @@ function middlewareHandler() {
 		serverHandler.init( client );
 		eventHandler.init( client );
 		channelHandler.init( client );
-		messageHandler.init( client );
+		messageHandler.init( client, bot );
 		userHandler.init( client );
 
 		parsed_events.use( eventHandler.parsedHandler );

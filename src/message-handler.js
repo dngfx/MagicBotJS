@@ -1,16 +1,19 @@
 const config = require( "../.config/config.js" ).Config;
 const logger = require( "./logging.js" ).Logger;
-const modules = require( "./module-handler.js" ).Modules;
+const modules = require( "./module-handler" ).Modules;
 const color = require( "irc-colors" );
+
+let self;
 
 const messageHandler = {
 	client: null,
 	config: null,
+	_bot:   null,
 
-	init: function( client ) {
-		self = messageHandler;
+	init: function( client, bot ) {
 		self.client = client;
 		self.config = config.bot_config.irc_server;
+		self._bot = bot;
 	},
 
 	generatePrefix: function( prefix, error = false ) {
@@ -21,8 +24,6 @@ const messageHandler = {
 	},
 
 	sendMessage: function( target, message ) {
-		self = messageHandler;
-
 		const is_channel = target[ 0 ] === "#";
 		const channel_id = is_channel ? `[${target}] ` : "";
 
@@ -37,7 +38,6 @@ const messageHandler = {
 		prefixText = "",
 		error = false
 	) {
-		let self = messageHandler;
 		let command =
 			prefix !== false ? self.generatePrefix( prefixText, error ) : "";
 
@@ -50,4 +50,5 @@ const messageHandler = {
 	},
 };
 
+self = messageHandler;
 exports.messageHandler = messageHandler;

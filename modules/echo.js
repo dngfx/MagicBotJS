@@ -5,8 +5,9 @@ const echo = {
 	logger: "",
 	name:   "Echo",
 
-	echo: function( str, target, prefix = true ) {
+	echo: function( str, event, prefix = true ) {
 		let self = echo;
+		let target = event.target;
 		str = str.join( " " );
 
 		msgHandler.sendCommandMessage( target, str, prefix, self.name );

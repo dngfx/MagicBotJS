@@ -3,7 +3,7 @@ const logger = require( "./logging.js" ).Logger;
 const modules = require( "./module-handler.js" ).Modules;
 const cmdPrefix = config.bot_config.irc_server.command_prefix;
 const Database = require( "../src/db.js" ).Database;
-const serverHandler = require( "./server-handler.js" ).serverHandler;
+const serverHandler = require( "./server-handler" ).serverHandler;
 
 /**
  * @returns channelHandler
@@ -22,8 +22,6 @@ const channelHandler = {
 	},
 
 	joinChannel: function( client, channel ) {
-		client.join( channel );
-
 		if( channel.match( "," ) ) {
 			let channels = channel.split( "," );
 			channels.forEach( ( channel_name ) => {
@@ -34,6 +32,8 @@ const channelHandler = {
 			logger.info( "Joining Channel " + channel );
 			self.channels[ channel ] = {};
 		}
+
+		client.join( channel );
 	},
 
 	partChannel: function( client, channel ) {
@@ -42,18 +42,30 @@ const channelHandler = {
 	},
 
 	topic: function( client, info ) {
+		console.log( info );
 		self.channels[ info.channel ].topic = {};
 		self.channels[ info.channel ].topic = info.topic;
 	},
 
-	onJoinPart: function( client, info, event ) {
-		if( client.user.nick === info.nick ) {
-			return;
+	onJoinPart: function( client, event, joinpart, channels = null ) {
+		if( client.user.nick === event.nick ) {
+			if( joinpart === "join" ) {
+				if( typeof self.channels[ event.channel ] === "undefined" ) {
+					self.channels[ event.channel ] = {};
+				}
+
+				let channel = channels !== null ? channels : event.channel;
+
+				self.joinChannel( channels );
+			} else {
+				delete self.channels[ event.channel ];
+				self.partChannel( event.channel );
+			}
 		}
 
-		const action = event === "join" ? "joined" : "parted";
+		const action = joinpart === "join" ? "joined" : "parted";
 
-		logger.info( `${info.nick} ${action} ${info.channel}` );
+		logger.info( `${event.nick} ${action} ${event.channel}` );
 	},
 
 	channelUserList: function( event ) {

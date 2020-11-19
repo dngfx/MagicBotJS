@@ -1,13 +1,19 @@
 {
-  "parser": "babel-eslint",
+  "parser": "esprima",
+  "plugins": [
+    "unicorn"
+  ],
   "parserOptions": {
-    "ecmaVersion": 11,
+    "ecmaVersion": 12,
     "sourceType": "script",
     "ecmaFeatures": {
       "impliedStrict": true
     }
   },
   "rules": {
+
+    "unicorn/prefer-includes": "error",
+
     "constructor-super": 2,
     "for-direction": "error",
     "getter-return": 2,
