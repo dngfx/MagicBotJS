@@ -1,6 +1,6 @@
-const glob = require( "glob" );
-const path = require( "path" );
-const fs = require( "fs" );
+const glob   = require( "glob" );
+const path   = require( "path" );
+const fs     = require( "fs" );
 const logger = require( "./logging.js" ).Logger;
 
 const moduleHandler = {
@@ -18,11 +18,8 @@ const moduleHandler = {
 			return `Could not reload module ${moduleName}, module does not exist.`;
 		}
 
-		let fileName = self.loadedModules[ moduleName ].fileName;
-
-		let module_deleted, message_deleted;
-
-		[
+		const fileName = self.loadedModules[ moduleName ].fileName;
+		const [
 			module_deleted, message_deleted
 		] = self.deleteModule( moduleName );
 
@@ -32,11 +29,12 @@ const moduleHandler = {
 			logger.debug( message_deleted );
 		}
 
-		let module_loaded, message_loaded;
-
-		[
+		const [
 			module_loaded, message_loaded
-		] = self.loadModule( moduleName, fileName );
+		] = self.loadModule(
+			moduleName,
+			fileName
+		);
 
 		if( module_loaded === true ) {
 			return message_loaded.replace( "Loaded", "Reloaded" );
@@ -57,10 +55,10 @@ const moduleHandler = {
 			];
 		}
 
-		let fileName = self.loadedModules[ moduleName ].fileName;
-		let name = require.resolve( fileName );
+		const fileName = self.loadedModules[ moduleName ].fileName;
+		const name     = require.resolve( fileName );
 
-		let functions = self.moduleFunctions[ moduleName ];
+		const functions       = self.moduleFunctions[ moduleName ];
 		let functions_deleted = [
 		];
 
@@ -97,27 +95,29 @@ const moduleHandler = {
 
 		self.moduleFunctions[ moduleName ] = {};
 
-		self.loadedModules[ moduleName ] = require( file );
+		self.loadedModules[ moduleName ]          = require( file );
 		self.loadedModules[ moduleName ].fileName = file;
 
 		Object.getOwnPropertyNames( self.loadedModules[ moduleName ]).forEach( ( var_name ) => {
-			let isFunction =
-					typeof self.loadedModules[ moduleName ][ var_name ] === "function";
+			const isFunction =
+					typeof self.loadedModules[ moduleName ][ var_name ] ===
+					"function";
 			if( isFunction === true ) {
 				if( typeof self.commandPathway[ var_name ] !== "undefined" ) {
 					logger.error( "Could not redefine function " + var_name.bold );
 
 					return [
-						false, "Could not redefine function " + var_name
+						false,
+						"Could not redefine function " + var_name,
 					];
 				}
 
 				self.moduleFunctions[ moduleName ][ var_name ] = true;
-				self.commandPathway[ var_name ] = moduleName;
+				self.commandPathway[ var_name ]                = moduleName;
 			}
 		});
 
-		let thisModule = self.loadedModules[ moduleName ];
+		const thisModule  = self.loadedModules[ moduleName ];
 		thisModule.client = self.client;
 
 		return [
@@ -131,12 +131,12 @@ const moduleHandler = {
 		logger.info( "Loading modules" );
 		self.modulePath = path.join( __dirname, "../modules" );
 		glob.sync( self.modulePath + "/*.js" ).forEach( ( file ) => {
-			let dash = file.split( "/" );
+			const dash = file.split( "/" );
 
-			let dot = dash[ dash.length - 1 ].split( "." );
+			const dot = dash[ dash.length - 1 ].split( "." );
 
 			if( dot.length === 2 ) {
-				let key = dot[ 0 ];
+				const key = dot[ 0 ];
 
 				logger.info( `${"[MODULES]".bold} Loaded ${key}` );
 				self.loadModule( key, file );
@@ -159,7 +159,7 @@ const moduleHandler = {
 		self = moduleHandler;
 
 		if( self.loadedModules.hasOwnProperty( moduleName ) ) {
-			let theModule = self.loadedModules[ moduleName ];
+			const theModule = self.loadedModules[ moduleName ];
 
 			return self.moduleFunctions[ moduleName ].hasOwnProperty( functionName );
 		} else {

@@ -1,9 +1,9 @@
 const {createLogger, format, transports, addColors} = require( "winston" );
-const timestampColor = require( "winston-timestamp-colorize" );
-const Database = require( "../src/db.js" ).Database;
-const config = require( "../.config/config.js" ).Config;
+const timestampColor                                = require( "winston-timestamp-colorize" );
+const Database                                      = require( "../src/db.js" ).Database;
+const config                                        = require( "../.config/config.js" ).Config;
 
-const prefix = "Server";
+const prefix    = "Server";
 const logConfig = {
 	levels: {
 		error:   0,

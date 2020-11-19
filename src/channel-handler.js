@@ -8,7 +8,7 @@ const userHandler   = require( "./user-handler.js" ).userHandler;
 const colors        = require( "colors" );
 
 /**
- * @returns channelHandler
+ * @default channelHandler
  */
 let self;
 
