@@ -55,6 +55,18 @@ const bot = new irc.Client({
 	rejectUnauthorized: dbConfig.settings[ "ssl-verify" ],
 });
 
+if( false ) {
+	bot.on( "debug", ( msg ) => {
+		msg = JSON.stringify( msg );
+		logger.debug( `${"[BOT DEBUG]".bold} => ${msg}` );
+	});
+
+	bot.on( "raw", ( msg ) => {
+		msg = JSON.stringify( msg );
+		logger.verbose( `${"[BOT RAW]".bold} => ${msg}` );
+	});
+}
+
 function middlewareHandler() {
 	return function( client, raw_events, parsed_events ) {
 		moduleHandler.client = client;
