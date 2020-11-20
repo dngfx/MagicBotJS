@@ -21,6 +21,8 @@ const serverHandler = {
 		logger.debug( "PONG " + event.message );
 	},
 
+	regainNick: function( event, type ) {},
+
 	serverOptions: function( event ) {
 		let server_options = {};
 		const options      = event.options;
@@ -86,6 +88,10 @@ const serverHandler = {
 			case "notice":
 			case "message":
 				self.serverNotice( event, type );
+				break;
+
+			case "nick in use":
+				self.regainNick( event, type );
 				break;
 
 			case "loggedin":

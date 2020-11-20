@@ -86,6 +86,29 @@ const admin = {
 		channelHandler.onJoinPart( event, "part", str );
 	},
 
+	listusers: function( str, event, prefix = true ) {
+		const name    = self.name;
+		const channel = event.target;
+
+		if( str[ 0 ] === "partchannel" ) {
+			str = channel;
+		} else {
+			str = str[ 0 ];
+		}
+
+		console.log( `Channel is ${str}` );
+
+		const info  = channelHandler.getChannelUsers( str );
+		const users = Object.keys( info ).join( ", " );
+
+		msgHandler.sendCommandMessage(
+			channel,
+			`Users in ${str}: ${users}}`,
+			prefix,
+			name
+		);
+	},
+
 	reloadallmodules: function( str, target, prefix = true ) {},
 };
 
