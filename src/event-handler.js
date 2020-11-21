@@ -109,9 +109,7 @@ const eventReactor = {
 			high: 266,
 		};
 
-		const ignoreCommands = [
-			"003", "004"
-		];
+		const ignoreCommands = [ "003", "004" ];
 
 		if( ignoreCommands.includes( info.command ) ) {
 			logger.debug( `Ignored command ${info.command}` );
@@ -177,11 +175,7 @@ const eventHandler = {
 		switch ( command ) {
 			case "registered":
 				logger.info( "Registered to server successfully" );
-				channelHandler.onJoinPart(
-					event,
-					"join",
-					channelHandler.default_channels
-				);
+				channelHandler.onJoinPart( event, "join", channelHandler.default_channels );
 				break;
 
 			case "privmsg":

@@ -18,10 +18,8 @@ const moduleHandler = {
 			return `Could not reload module ${moduleName}, module does not exist.`;
 		}
 
-		const fileName = self.loadedModules[ moduleName ].fileName;
-		const [
-			module_deleted, message_deleted
-		] = self.deleteModule( moduleName );
+		const fileName                            = self.loadedModules[ moduleName ].fileName;
+		const [ module_deleted, message_deleted ] = self.deleteModule( moduleName );
 
 		if( module_deleted === false ) {
 			return message_deleted;
@@ -29,12 +27,7 @@ const moduleHandler = {
 			logger.debug( message_deleted );
 		}
 
-		const [
-			module_loaded, message_loaded
-		] = self.loadModule(
-			moduleName,
-			fileName
-		);
+		const [ module_loaded, message_loaded ] = self.loadModule( moduleName, fileName );
 
 		if( module_loaded === true ) {
 			return message_loaded.replace( "Loaded", "Reloaded" );
@@ -49,18 +42,14 @@ const moduleHandler = {
 		if( !self.moduleExists( moduleName ) ) {
 			logger.error( `Could not unload module ${moduleName.bold}, module does not exist.` );
 
-			return [
-				false,
-				`Could not unload module ${moduleName}, module does not exist.`,
-			];
+			return [ false, `Could not unload module ${moduleName}, module does not exist.`, ];
 		}
 
 		const fileName = self.loadedModules[ moduleName ].fileName;
 		const name     = require.resolve( fileName );
 
 		const functions       = self.moduleFunctions[ moduleName ];
-		let functions_deleted = [
-		];
+		let functions_deleted = [];
 
 		Object.getOwnPropertyNames( functions ).forEach( ( function_name ) => {
 			functions_deleted.push( function_name );
@@ -76,9 +65,7 @@ const moduleHandler = {
 
 		logger.debug( "Deleted all references" );
 
-		return [
-			true, `Unloaded module ${moduleName} successfully`
-		];
+		return [ true, `Unloaded module ${moduleName} successfully` ];
 	},
 
 	loadModule: function( moduleName, file ) {
@@ -87,10 +74,7 @@ const moduleHandler = {
 		if( self.moduleExists( moduleName ) ) {
 			logger.error( `Could not load module ${moduleName.bold}, module already exists.` );
 
-			return [
-				false,
-				`Could not load module ${moduleName}, module already exists.`,
-			];
+			return [ false, `Could not load module ${moduleName}, module already exists.`, ];
 		}
 
 		self.moduleFunctions[ moduleName ] = {};
@@ -106,10 +90,7 @@ const moduleHandler = {
 				if( typeof self.commandPathway[ var_name ] !== "undefined" ) {
 					logger.error( "Could not redefine function " + var_name.bold );
 
-					return [
-						false,
-						"Could not redefine function " + var_name,
-					];
+					return [ false, "Could not redefine function " + var_name, ];
 				}
 
 				self.moduleFunctions[ moduleName ][ var_name ] = true;
@@ -120,9 +101,7 @@ const moduleHandler = {
 		const thisModule  = self.loadedModules[ moduleName ];
 		thisModule.client = self.client;
 
-		return [
-			true, `Loaded module ${moduleName} successfully`
-		];
+		return [ true, `Loaded module ${moduleName} successfully` ];
 	},
 
 	initModules: function( client ) {

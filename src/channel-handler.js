@@ -140,14 +140,10 @@ const channelHandler = {
 		const network    = self.client.network.name;
 		const network_id = Database.server_config[ network ].server_id;
 
-		Database.insertOneRow(
-			"users",
-			{
-				server_id: network_id,
-				nickname:  user.nick,
-			},
-			true
-		);
+		Database.insertOneRow( "users", {
+			server_id: network_id,
+			nickname:  user.nick,
+		}, true );
 	},
 
 	serverNotice: function( event ) {

@@ -40,9 +40,7 @@ const serverHandler = {
 
 		server_options = {};
 
-		for( const [
-			key, value
-		] of Object.entries( options ) ) {
+		for( const [ key, value ] of Object.entries( options ) ) {
 			server_options[ String( key ).toLowerCase() ] = value;
 		}
 

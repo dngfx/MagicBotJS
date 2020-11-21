@@ -12,13 +12,7 @@ const get_topic = {
 		const is_channel = target[ 0 ] === "#";
 
 		if( !is_channel ) {
-			msgHandler.sendCommandMessage(
-				target,
-				"Channel " + target + " does not exist",
-				prefix,
-				self.name,
-				true
-			);
+			msgHandler.sendCommandMessage( target, "Channel " + target + " does not exist", prefix, self.name, true );
 		}
 
 		const topic = channelHandler.getChannelTopic( target );

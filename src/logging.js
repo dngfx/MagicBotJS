@@ -1,3 +1,4 @@
+/* eslint-disable function-call-argument-newline */
 const {createLogger, format, transports, addColors} = require( "winston" );
 const timestampColor                                = require( "winston-timestamp-colorize" );
 const Database                                      = require( "../src/db.js" ).Database;

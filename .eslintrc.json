@@ -1,8 +1,8 @@
 {
 	"parser":"esprima",
 	"plugins":[
-    "unicorn",
-    "align-assignments"
+		"unicorn",
+		"align-assignments"
 	],
 	"parserOptions":{
 		"ecmaVersion":12,
@@ -12,8 +12,13 @@
 		}
 	},
 	"rules":{
-    "unicorn/prefer-includes":"error",
-    "align-assignments/align-assignments": ["error", {"requiresOnly": false}],
+		"unicorn/prefer-includes":"error",
+		"align-assignments/align-assignments":[
+			"error",
+			{
+				"requiresOnly":false
+			}
+		],
 		"constructor-super":2,
 		"for-direction":"error",
 		"getter-return":2,
@@ -67,7 +72,9 @@
 		"valid-typeof":2,
 		"array-bracket-newline":[
 			"error",
-			"always"
+			{
+				"multiline":true
+			}
 		],
 		"array-bracket-spacing":[
 			"error",
@@ -100,6 +107,7 @@
 			"error",
 			"declaration"
 		],
+		"function-call-argument-newline": ["error", "never"],
 		"function-paren-newline":2,
 		"global-require":"off",
 		"guard-for-in":0,
@@ -110,16 +118,20 @@
 				"SwitchCase":1
 			}
 		],
-		"key-spacing": [
-      "error", {
-        "align": "value"
-      }
-    ],
+		"key-spacing":[
+			"error",
+			{
+				"align":"value"
+			}
+		],
 		"space-before-function-paren":[
 			"error",
 			"never"
 		],
-		"array-element-newline":0,
+		"array-element-newline": ["error", {
+			"multiline": true,
+			"minItems": 3
+		}],
 		"keyword-spacing":[
 			"error",
 			{
@@ -151,10 +163,11 @@
 		"no-mixed-requires":2,
 		"no-multi-assign":2,
 		"no-multi-spaces":[
-			"error", {
-				"exceptions": {
-					"VariableDeclarator": true,
-					"AssignmentExpression": true
+			"error",
+			{
+				"exceptions":{
+					"VariableDeclarator":true,
+					"AssignmentExpression":true
 				}
 			}
 		],
@@ -178,11 +191,16 @@
 			"error",
 			"never",
 			{
-				"arraysInObjects":true
+				"objectsInObjects":true
 			}
 		],
-		"object-property-newline":2,
-		"operator-linebreak":2,
+		"object-property-newline": [
+			"error",
+			{
+				"allowAllPropertiesOnSameLine": true
+			}
+		],
+		"operator-linebreak": 0,
 		"block-spacing":"error",
 		"padded-blocks":[
 			"error",
@@ -240,7 +258,7 @@
 				]
 			}
 		],
-		"sort-keys": 0,
+		"sort-keys":0,
 		"sort-vars":[
 			"error",
 			{

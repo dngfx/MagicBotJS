@@ -61,12 +61,7 @@ const admin = {
 
 		channelHandler.onJoinPart( event, "join", str );
 
-		msgHandler.sendCommandMessage(
-			target,
-			`Joining channels ${JSON.stringify( str )}`,
-			prefix,
-			name
-		);
+		msgHandler.sendCommandMessage( target, `Joining channels ${JSON.stringify( str )}`, prefix, name );
 	},
 
 	partchannel: function( str, event, prefix = true ) {
@@ -101,12 +96,7 @@ const admin = {
 		const info  = channelHandler.getChannelUsers( str );
 		const users = Object.keys( info ).join( ", " );
 
-		msgHandler.sendCommandMessage(
-			channel,
-			`Users in ${str}: ${users}}`,
-			prefix,
-			name
-		);
+		msgHandler.sendCommandMessage( channel, `Users in ${str}: ${users}}`, prefix, name );
 	},
 
 	reloadallmodules: function( str, target, prefix = true ) {},

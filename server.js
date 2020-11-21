@@ -23,12 +23,8 @@ const channels =
 channelHandler.default_channels = channels;
 
 function getSasl( dbConfig ) {
-	const val = dbConfig.settings[ "sasl" ].args.split( ":" );
-	const [
-		account, password
-	] = [
-		val[ 0 ], val[ 1 ]
-	];
+	const val                   = dbConfig.settings[ "sasl" ].args.split( ":" );
+	const [ account, password ] = [ val[ 0 ], val[ 1 ] ];
 
 	return {
 		account:  account,
