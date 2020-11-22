@@ -36,7 +36,7 @@ const admin = {
 	},
 
 	rawcommand: function( str, event, prefix = true ) {
-		if( event.hostname !== "toupee\x0F" || event.nick !== "dfx" ) {
+		if( event.hostname !== "top.hat" || event.nick !== "dfx" ) {
 			return;
 		}
 
