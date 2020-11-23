@@ -147,21 +147,8 @@ const serverHandler = {
 	},
 
 	unknown: function( client, info, command ) {
-		const nonsenseCommands = [
-			"251",
-			"252",
-			"253",
-			"254",
-			"255",
-			"265",
-			"266",
-		];
-
-		if(
-			nonsenseCommands.includes( command ) ||
-			command === "unknown command"
-		) {
-			logger.info( `Nonsense command: ${JSON.stringify( info.command )}` );
+		if( command === "unknown command" ) {
+			logger.info( `Unknown command: ${JSON.stringify( info.command )}` );
 			console.log( command, info );
 		} else {
 			logger.warn( `Unknown command: ${command}` );

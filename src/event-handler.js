@@ -104,32 +104,48 @@ const eventReactor = {
 	},
 
 	unknown: function( client, info, command ) {
-		const nonsenseCommands = {
-			low:  251,
-			high: 266,
-		};
-
-		const ignoreCommands = [ "003", "004" ];
-
-		if( ignoreCommands.includes( info.command ) ) {
-			logger.debug( `Ignored command ${info.command}` );
-
-			return;
-		}
-
 		let number;
+		let commandHandled = false;
 
 		const isNumber = !isNaN( info.command );
 		if( isNumber ) {
-			number = info.command.valueOf();
+			number = parseInt( info.command );
 		}
-		if(
-			isNumber &&
-			number >= nonsenseCommands.low &&
-			number <= nonsenseCommands.high
-		) {
-			serverHandler.serverMessage( info, info.command );
 
+		// Parseint strips leading zeroes
+		if( isNumber ) {
+			switch ( number ) {
+				case 3:
+				case 4:
+					return;
+
+				case 251:
+				case 252:
+				case 253:
+				case 254:
+				case 255:
+				case 256:
+				case 257:
+				case 258:
+				case 259:
+				case 260:
+				case 261:
+				case 262:
+				case 263:
+				case 264:
+				case 265:
+				case 266:
+					serverHandler.serverNotice( info, "serverInfo" );
+					commandHandled = true;
+
+					return;
+
+				default:
+					break;
+			}
+		}
+
+		if( commandHandled ) {
 			return;
 		}
 
