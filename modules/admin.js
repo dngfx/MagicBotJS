@@ -99,7 +99,13 @@ const admin = {
 		msgHandler.sendCommandMessage( channel, `Users in ${str}: ${users}}`, prefix, name );
 	},
 
-	reloadallmodules: function( str, target, prefix = true ) {},
+	reloadallmodules: function( str, event, prefix = true ) {
+		const name   = self.name;
+		const target = event.target;
+
+		const result = modules.reloadAllModules();
+		msgHandler.sendCommandMessage( target, result, prefix, name );
+	},
 };
 
 self           = admin;

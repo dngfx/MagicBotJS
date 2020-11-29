@@ -3,6 +3,8 @@ const path   = require( "path" );
 const fs     = require( "fs" );
 const logger = require( "./logging.js" ).Logger;
 
+let self;
+
 const moduleHandler = {
 	moduleDict:      {},
 	moduleFunctions: {},
@@ -11,7 +13,6 @@ const moduleHandler = {
 	loadedModules:   {},
 
 	reloadModule: function( moduleName ) {
-		self = moduleHandler;
 		if( !self.moduleExists( moduleName ) ) {
 			logger.error( `Could not reload module ${moduleName.bold}, module does not exist.` );
 
@@ -36,9 +37,17 @@ const moduleHandler = {
 		}
 	},
 
-	deleteModule: function( moduleName ) {
-		self = moduleHandler;
+	reloadAllModules: function() {
+		let message;
+		Object.getOwnPropertyNames( self.loadedModules ).forEach( ( module ) => {
+			message = self.reloadModule( module );
+			logger.debug( message );
+		});
 
+		return "Reloaded all modules";
+	},
+
+	deleteModule: function( moduleName ) {
 		if( !self.moduleExists( moduleName ) ) {
 			logger.error( `Could not unload module ${moduleName.bold}, module does not exist.` );
 
@@ -69,8 +78,6 @@ const moduleHandler = {
 	},
 
 	loadModule: function( moduleName, file ) {
-		self = moduleHandler;
-
 		if( self.moduleExists( moduleName ) ) {
 			logger.error( `Could not load module ${moduleName.bold}, module already exists.` );
 
@@ -105,8 +112,6 @@ const moduleHandler = {
 	},
 
 	initModules: function( client ) {
-		self = moduleHandler;
-
 		logger.info( "Loading modules" );
 		self.modulePath = path.join( __dirname, "../modules" );
 		glob.sync( self.modulePath + "/*.js" ).forEach( ( file ) => {
@@ -125,8 +130,6 @@ const moduleHandler = {
 	},
 
 	returnModule: function( moduleName ) {
-		self = moduleHandler;
-
 		if( self.loadedModules.hasOwnProperty( moduleName ) ) {
 			return self.loadedModules[ moduleName ];
 		} else {
@@ -135,8 +138,6 @@ const moduleHandler = {
 	},
 
 	hasFunction: function( moduleName, functionName ) {
-		self = moduleHandler;
-
 		if( self.loadedModules.hasOwnProperty( moduleName ) ) {
 			const theModule = self.loadedModules[ moduleName ];
 
@@ -147,22 +148,17 @@ const moduleHandler = {
 	},
 
 	moduleExists: function( moduleName ) {
-		self = moduleHandler;
-
 		return self.loadedModules.hasOwnProperty( moduleName );
 	},
 
 	commandExists: function( commandName ) {
-		self = moduleHandler;
-
 		return self.commandPathway.hasOwnProperty( commandName );
 	},
 
 	getModuleFromCmd: function( commandName ) {
-		self = moduleHandler;
-
 		return self.loadedModules[ self.commandPathway[ commandName ] ];
 	},
 };
 
+self            = moduleHandler;
 exports.Modules = moduleHandler;

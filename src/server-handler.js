@@ -148,7 +148,7 @@ const serverHandler = {
 
 	unknown: function( client, info, command ) {
 		if( command === "unknown command" ) {
-			logger.info( `Unknown command: ${JSON.stringify( info.command )}` );
+			logger.error( `Unknown command: ${JSON.stringify( info.command )}` );
 			console.log( command, info );
 		} else {
 			logger.warn( `Unknown command: ${command}` );
