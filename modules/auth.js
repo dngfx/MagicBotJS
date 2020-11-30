@@ -16,13 +16,13 @@ const auth = {
 		}
 
 		const user = core.userHandler.getUser( event.nick );
-		if( user.identified === true ) {
+		if( user.authenticated === true ) {
 			core.messageHandler.sendCommandMessage( event.nick, "You are already identified", prefix, self.name );
 
 			return;
 		}
 
-		const id = core.db.getUserId( event.nick ).user_id;
+		const id = core.db.getUserId( event.nick );
 
 		const alreadyRegistered = core.db.userSettingExists( id, "password" );
 		if( alreadyRegistered === true ) {
@@ -66,10 +66,10 @@ const auth = {
 		}
 
 		password = crypto.createHash( "sha3-512" ).update( password ).digest( "hex" );
-		const id = core.db.getUserId( event.nick ).user_id;
+		const id = core.db.getUserId( event.nick );
 
 		const correctPassword = core.db.getUserSetting( id, "password" ).value;
-		console.log( correctPassword );
+
 		if( correctPassword === password ) {
 			core.userHandler.users[ event.nick ].authenticated         = true;
 			core.userHandler.users[ event.nick ].authenticated_account = user;

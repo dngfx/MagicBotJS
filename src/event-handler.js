@@ -66,6 +66,7 @@ const eventReactor = {
 	privateMessage: function( client, message ) {
 		const is_channel    = message.target[ 0 ] === "#";
 		const is_private    = message.target === client.user.nick;
+		const target        = is_channel === true ? message.target : message.nick;
 		const maybe_command =
 			message.message[ 0 ] === cmdPrefix || is_private === true;
 
@@ -97,6 +98,15 @@ const eventReactor = {
 
 			if( core.moduleHandler.commandExists( cmdText ) ) {
 				const cmdModule = core.moduleHandler.getModuleFromCmd( cmdText );
+				if( typeof cmdModule.requirePermission === "string" ) {
+					if(
+						!core.userHandler.checkPermission( message.nick, cmdModule.requirePermission )
+					) {
+						core.messageHandler.sendCommandMessage( target, `You do not have the required permissions for this command.`, true, cmdModule.name, true );
+
+						return;
+					}
+				}
 
 				cmdModule[ cmdText ]( args, message );
 				if( cmdModule.name === "Authentication" ) {
@@ -207,6 +217,10 @@ const eventHandler = {
 
 			case "nick":
 				core.userHandler.changeNick( client, event );
+				break;
+
+			case "quit":
+				core.userHandler.removeUser( client, event );
 				break;
 
 			case "loggedin":

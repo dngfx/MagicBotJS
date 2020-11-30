@@ -34,6 +34,15 @@ const userHandler = {
 		self.users[ user.nick ].authenticated_account = null;
 	},
 
+	removeUser: function( client, event ) {
+		const user = event.nick;
+		if( typeof self.users[ user ] === "undefined" ) {
+			return;
+		}
+
+		delete self.users[ user ];
+	},
+
 	checkPermission: function( user, permission ) {
 		if( self.users[ user ].authenticated === false ) {
 			return false;
@@ -48,7 +57,17 @@ const userHandler = {
 			return false;
 		}
 
-		if( permissions.value === "*" ) {
+		if(
+			typeof permissions.value === "string" &&
+			( permissions.value === "*" || permissions.value === permission )
+		) {
+			return true;
+		}
+
+		if(
+			typeof permissions.value === "object" &&
+			typeof permissions.value[ permission ] !== "string"
+		) {
 			return true;
 		}
 	},

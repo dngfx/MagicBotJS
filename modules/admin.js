@@ -3,14 +3,14 @@ const core = require( "../src/core-handler.js" ).coreHandler;
 let self;
 
 const admin = {
-	client: "",
-	logger: "",
-	name:   "Admin",
+	client:            "",
+	logger:            "",
+	name:              "Admin",
+	requirePermission: "admin",
 
 	reloadmodule: function( str, event, prefix = true ) {
 		const name   = self.name;
-		const target =
-			typeof event.nick === "string" ? event.nick : event.target;
+		const target = event.target[ 0 ] === "#" ? event.target : event.nick;
 		str          = str[ 0 ];
 
 		const result = core.moduleHandler.reloadModule( str );
@@ -23,8 +23,7 @@ const admin = {
 
 	loadModule: function( str, event, prefix = true ) {
 		const name   = self.name;
-		const target =
-			typeof event.nick === "string" ? event.nick : event.target;
+		const target = event.target[ 0 ] === "#" ? event.target : event.nick;
 		str          = str[ 0 ];
 
 		if( core.modules.moduleExists( str ) === true ) {
@@ -54,14 +53,11 @@ const admin = {
 
 	joinchannel: function( str, event, prefix = true ) {
 		const name   = self.name;
-		const target =
-			typeof event.nick === "string" ? event.nick : event.target;
+		const target = event.target[ 0 ] === "#" ? event.target : event.nick;
 
 		if( str[ 0 ] === "joinchannel" ) {
 			return;
 		}
-
-		event.nick = self.client.user.nick;
 
 		core.channelHandler.onJoinPart( event, "join", str );
 
@@ -70,8 +66,7 @@ const admin = {
 
 	partchannel: function( str, event, prefix = true ) {
 		const name   = self.name;
-		const target =
-			typeof event.nick === "string" ? event.nick : event.target;
+		const target = event.target[ 0 ] === "#" ? event.target : event.nick;
 
 		if( str[ 0 ] === "partchannel" ) {
 			str = target;
@@ -79,36 +74,34 @@ const admin = {
 			str = str[ 0 ];
 		}
 
-		console.log( `Channel is ${str}` );
-
-		event.nick = self.client.user.nick;
-
 		core.channelHandler.onJoinPart( event, "part", str );
 	},
 
 	listusers: function( str, event, prefix = true ) {
-		const name    = self.name;
-		const channel =
-			typeof event.nick === "string" ? event.nick : event.target;
+		const name   = self.name;
+		const target = event.target[ 0 ] === "#" ? event.target : event.nick;
 
-		if( str[ 0 ] === "partchannel" ) {
-			str = channel;
+		if( event.target[ 0 ] === "#" ) {
+			core.messageHandler.sendCommandMessage( event.target, "This command can only be used in a private message", prefix, self.name );
+
+			return;
+		}
+
+		if( str[ 0 ] === "listusers" ) {
+			str = target;
 		} else {
 			str = str[ 0 ];
 		}
 
-		console.log( `Channel is ${str}` );
-
 		const info  = core.channelHandler.getChannelUsers( str );
 		const users = Object.keys( info ).join( ", " );
 
-		core.messageHandler.sendCommandMessage( channel, `Users in ${str}: ${users}}`, prefix, name );
+		core.messageHandler.sendCommandMessage( target, `Users in ${str}: ${users}`, prefix, name );
 	},
 
 	reloadallmodules: function( str, event, prefix = true ) {
 		const name   = self.name;
-		const target =
-			typeof event.nick === "string" ? event.nick : event.target;
+		const target = event.target[ 0 ] === "#" ? event.target : event.nick;
 
 		const result = core.moduleHandler.reloadAllModules();
 		core.messageHandler.sendCommandMessage( target, result, prefix, name );

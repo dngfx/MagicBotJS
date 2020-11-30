@@ -67,7 +67,7 @@ const database = {
 		const stmt = db.prepare( "SELECT user_id FROM users WHERE nickname = ?" );
 		const row  = stmt.get( nick );
 
-		return row;
+		return row.user_id;
 	},
 
 	userSettingExists: function( id, setting ) {
