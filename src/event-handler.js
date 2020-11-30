@@ -1,9 +1,8 @@
-const config         = require( "../.config/config.js" ).Config;
-const logger         = require( "./logging.js" ).Logger;
-const modules        = require( "./module-handler.js" ).Modules;
-const cmdPrefix      = config.bot_config.irc_server.command_prefix;
-const channelHandler = require( "./channel-handler.js" ).channelHandler;
-const serverHandler  = require( "./server-handler.js" ).serverHandler;
+const config    = require( "../.config/config.js" ).Config;
+const cmdPrefix = config.bot_config.irc_server.command_prefix;
+const logger    = require( "./logging.js" ).Logger;
+
+const core = require( "./core-handler.js" ).coreHandler;
 
 let self;
 const eventReactor = {
@@ -67,7 +66,8 @@ const eventReactor = {
 	privateMessage: function( client, message ) {
 		const is_channel    = message.target[ 0 ] === "#";
 		const is_private    = message.target === client.user.nick;
-		const maybe_command = message.message[ 0 ] === cmdPrefix;
+		const maybe_command =
+			message.message[ 0 ] === cmdPrefix || is_private === true;
 
 		message.time = process.hrtime.bigint();
 
@@ -77,15 +77,15 @@ const eventReactor = {
 		}
 
 		if( is_private ) {
-			logBuild += `[PRIVATE MESSAGE FROM ${message.nick}] `;
+			logBuild += `[${message.nick}] `;
 		}
 
-		const str = `${logBuild}<${message.nick}> ${message.message}`;
+		let parsedMessage = message.message;
 
-		logger.info( str );
-
-		if( maybe_command && is_channel ) {
-			const cmd   = message.message.split( cmdPrefix )[ 1 ];
+		if( maybe_command && ( is_channel || is_private ) ) {
+			const cmd   = is_private
+				? message.message
+				: message.message.split( cmdPrefix )[ 1 ];
 			let args    = cmd.split( " " );
 			let cmdText = "";
 			if( args.length < 2 ) {
@@ -95,12 +95,19 @@ const eventReactor = {
 				args    = cmd.split( " " ).slice( 1 );
 			}
 
-			if( modules.commandExists( cmdText ) ) {
-				const cmdModule = modules.getModuleFromCmd( cmdText );
+			if( core.moduleHandler.commandExists( cmdText ) ) {
+				const cmdModule = core.moduleHandler.getModuleFromCmd( cmdText );
 
 				cmdModule[ cmdText ]( args, message );
+				if( cmdModule.name === "Authentication" ) {
+					parsedMessage = `${cmdText} ********`;
+				}
 			}
 		}
+
+		const str = `${logBuild}<${message.nick}> ${parsedMessage}`;
+
+		logger.info( str );
 	},
 
 	unknown: function( client, info, command ) {
@@ -135,7 +142,7 @@ const eventReactor = {
 				case 264:
 				case 265:
 				case 266:
-					serverHandler.serverNotice( info, "serverInfo" );
+					core.serverHandler.serverNotice( info, "serverInfo" );
 					commandHandled = true;
 
 					return;
@@ -177,8 +184,8 @@ const eventHandler = {
 		if( self.calledInit === null ) {
 			self.config = config.bot_config.irc_server;
 			eventReactor.init( client );
-			channelHandler.init( client );
-			modules.initModules( client );
+			core.channelHandler.init( client );
+			core.moduleHandler.initModules( client );
 
 			self.calledInit = true;
 		}
@@ -191,24 +198,28 @@ const eventHandler = {
 		switch ( command ) {
 			case "registered":
 				logger.info( "Registered to server successfully" );
-				channelHandler.onJoinPart( event, "join", channelHandler.default_channels );
+				core.channelHandler.onJoinPart( event, "join", core.channelHandler.default_channels );
 				break;
 
 			case "privmsg":
 				eventReactor.privateMessage( client, event );
 				break;
 
+			case "nick":
+				core.userHandler.changeNick( client, event );
+				break;
+
 			case "loggedin":
 			case "account":
 			case "cap ack":
 			case "server options":
-				serverHandler.serverMessage( event, command );
+				core.serverHandler.serverMessage( event, command );
 				break;
 
 			case "message":
 			case "notice":
 				if( event.from_server === true ) {
-					serverHandler.serverMessage( event, command );
+					core.serverHandler.serverMessage( event, command );
 				}
 				break;
 
@@ -229,7 +240,7 @@ const eventHandler = {
 			case "userlist":
 			case "topicsetby":
 				logger.debug( "Handling client command " + command );
-				channelHandler.handleCommand( command, event, client, next );
+				core.channelHandler.handleCommand( command, event, client, next );
 
 				return;
 

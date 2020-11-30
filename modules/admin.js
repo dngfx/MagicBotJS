@@ -1,7 +1,4 @@
-const msgHandler     = require( "../src/message-handler" ).messageHandler;
-const modules        = require( "../src/module-handler.js" ).Modules;
-const userHandler    = require( "../src/user-handler.js" ).userHandler;
-const channelHandler = require( "../src/channel-handler.js" ).channelHandler;
+const core = require( "../src/core-handler.js" ).coreHandler;
 
 let self;
 
@@ -12,27 +9,33 @@ const admin = {
 
 	reloadmodule: function( str, event, prefix = true ) {
 		const name   = self.name;
-		const target = event.target;
+		const target =
+			typeof event.nick === "string" ? event.nick : event.target;
 		str          = str[ 0 ];
 
-		const result = modules.reloadModule( str );
-		msgHandler.sendCommandMessage( target, result, prefix, name );
+		const result = core.moduleHandler.reloadModule( str );
+		core.messageHandler.sendCommandMessage( target, result, prefix, name );
+	},
+
+	showusers: function( str, event, prefix = true ) {
+		console.log( core.userHandler.getAllUsers() );
 	},
 
 	loadModule: function( str, event, prefix = true ) {
 		const name   = self.name;
-		const target = event.target;
+		const target =
+			typeof event.nick === "string" ? event.nick : event.target;
 		str          = str[ 0 ];
 
-		if( modules.moduleExists( str ) === true ) {
+		if( core.modules.moduleExists( str ) === true ) {
 			const msg = `Module ${str} is already loaded`;
-			msgHandler.sendCommandMessage( target, msg, prefix, name, true );
+			core.messageHandler.sendCommandMessage( target, msg, prefix, name, true );
 
 			return;
 		}
 
-		const result = modules.reloadModule( str );
-		msgHandler.sendCommandMessage( target, result, prefix, name );
+		const result = core.moduleHandler.reloadModule( str );
+		core.messageHandler.sendCommandMessage( target, result, prefix, name );
 	},
 
 	rawcommand: function( str, event, prefix = true ) {
@@ -51,7 +54,8 @@ const admin = {
 
 	joinchannel: function( str, event, prefix = true ) {
 		const name   = self.name;
-		const target = event.target;
+		const target =
+			typeof event.nick === "string" ? event.nick : event.target;
 
 		if( str[ 0 ] === "joinchannel" ) {
 			return;
@@ -59,14 +63,15 @@ const admin = {
 
 		event.nick = self.client.user.nick;
 
-		channelHandler.onJoinPart( event, "join", str );
+		core.channelHandler.onJoinPart( event, "join", str );
 
-		msgHandler.sendCommandMessage( target, `Joining channels ${JSON.stringify( str )}`, prefix, name );
+		core.messageHandler.sendCommandMessage( target, `Joining channels ${JSON.stringify( str )}`, prefix, name );
 	},
 
 	partchannel: function( str, event, prefix = true ) {
 		const name   = self.name;
-		const target = event.target;
+		const target =
+			typeof event.nick === "string" ? event.nick : event.target;
 
 		if( str[ 0 ] === "partchannel" ) {
 			str = target;
@@ -78,12 +83,13 @@ const admin = {
 
 		event.nick = self.client.user.nick;
 
-		channelHandler.onJoinPart( event, "part", str );
+		core.channelHandler.onJoinPart( event, "part", str );
 	},
 
 	listusers: function( str, event, prefix = true ) {
 		const name    = self.name;
-		const channel = event.target;
+		const channel =
+			typeof event.nick === "string" ? event.nick : event.target;
 
 		if( str[ 0 ] === "partchannel" ) {
 			str = channel;
@@ -93,18 +99,19 @@ const admin = {
 
 		console.log( `Channel is ${str}` );
 
-		const info  = channelHandler.getChannelUsers( str );
+		const info  = core.channelHandler.getChannelUsers( str );
 		const users = Object.keys( info ).join( ", " );
 
-		msgHandler.sendCommandMessage( channel, `Users in ${str}: ${users}}`, prefix, name );
+		core.messageHandler.sendCommandMessage( channel, `Users in ${str}: ${users}}`, prefix, name );
 	},
 
 	reloadallmodules: function( str, event, prefix = true ) {
 		const name   = self.name;
-		const target = event.target;
+		const target =
+			typeof event.nick === "string" ? event.nick : event.target;
 
-		const result = modules.reloadAllModules();
-		msgHandler.sendCommandMessage( target, result, prefix, name );
+		const result = core.moduleHandler.reloadAllModules();
+		core.messageHandler.sendCommandMessage( target, result, prefix, name );
 	},
 };
 

@@ -1,8 +1,9 @@
-const config  = require( "../.config/config.js" ).Config;
-const logger  = require( "./logging.js" ).Logger;
-const modules = require( "./module-handler" ).Modules;
-const color   = require( "irc-colors" ).global();
-const colors  = require( "colors" );
+const config = require( "../.config/config.js" ).Config;
+const logger = require( "./logging.js" ).Logger;
+const color  = require( "irc-colors" ).global();
+const colors = require( "colors" );
+
+const core = require( "./core-handler.js" ).coreHandler;
 
 let self;
 
@@ -33,6 +34,10 @@ const messageHandler = {
 		logger.info( `${channel_id}<${
 			self.client.user.nick
 		}> ${message.irc.stripColorsAndStyle()}` );
+	},
+
+	sendAction: function( target, message ) {
+		self.client.action( target, message );
 	},
 
 	sendCommandMessage: function(

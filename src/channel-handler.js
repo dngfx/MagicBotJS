@@ -1,11 +1,9 @@
-const config        = require( "../.config/config.js" ).Config;
-const logger        = require( "./logging.js" ).Logger;
-const modules       = require( "./module-handler.js" ).Modules;
-const cmdPrefix     = config.bot_config.irc_server.command_prefix;
-const Database      = require( "../src/db.js" ).Database;
-const serverHandler = require( "./server-handler" ).serverHandler;
-const userHandler   = require( "./user-handler.js" ).userHandler;
-const colors        = require( "colors" );
+const config    = require( "../.config/config.js" ).Config;
+const cmdPrefix = config.bot_config.irc_server.command_prefix;
+const logger    = require( "./logging.js" ).Logger;
+const colors    = require( "colors" );
+
+const core = require( "./core-handler.js" ).coreHandler;
 
 /**
  * @default channelHandler
@@ -85,7 +83,6 @@ const channelHandler = {
 				return;
 			} else {
 				if( joinpart === "join" ) {
-					console.log( typeof self.channels[ channels ]);
 					if( typeof self.channels[ channels ] === "undefined" ) {
 						self.channels[ channels ] = {};
 					}
@@ -123,7 +120,7 @@ const channelHandler = {
 		for( const user in users ) {
 			cur_user = users[ user ];
 
-			userHandler.addUser( cur_user );
+			core.userHandler.addUser( cur_user );
 
 			self.addUserToDb( cur_user );
 			self.channels[ channel ][ cur_user.nick ] = {
@@ -143,9 +140,9 @@ const channelHandler = {
 
 	addUserToDb: function( user ) {
 		const network    = self.client.network.name;
-		const network_id = Database.server_config[ network ].server_id;
+		const network_id = core.db.server_config[ network ].server_id;
 
-		Database.insertOneRow( "users", {
+		core.db.insertOneRow( "users", {
 			server_id: network_id,
 			nickname:  user.nick,
 		}, true );

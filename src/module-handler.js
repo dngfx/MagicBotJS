@@ -11,6 +11,15 @@ const moduleHandler = {
 	commandPathway:  {},
 	modulePath:      null,
 	loadedModules:   {},
+	client:          null,
+
+	init: function( client ) {
+		if( self.client !== null ) {
+			return;
+		}
+
+		self.client = client;
+	},
 
 	reloadModule: function( moduleName ) {
 		if( !self.moduleExists( moduleName ) ) {

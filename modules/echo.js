@@ -12,6 +12,14 @@ const echo = {
 
 		msgHandler.sendCommandMessage( target, str, prefix, self.name );
 	},
+
+	action: function( str, event, prefix = true ) {
+		const self   = echo;
+		const target = event.target;
+		str          = str.join( " " );
+
+		msgHandler.sendAction( target, str );
+	},
 };
 
 module.exports = echo;

@@ -5,14 +5,17 @@ const Database = require( "./src/db.js" ).Database;
 Database.init();
 const dbConfig = Database.getConfig( 1 );
 
-const serverConfig   = config.bot_config.irc_server;
-const utils          = require( "./src/utils.js" ).utils;
-const eventHandler   = require( "./src/event-handler.js" ).EventHandler;
-const moduleHandler  = require( "./src/module-handler.js" ).Modules;
-const messageHandler = require( "./src/message-handler.js" ).messageHandler;
-const channelHandler = require( "./src/channel-handler.js" ).channelHandler;
-const serverHandler  = require( "./src/server-handler.js" ).serverHandler;
-const userHandler    = require( "./src/user-handler.js" ).userHandler;
+const serverConfig = config.bot_config.irc_server;
+const core         = require( "./src/core-handler.js" ).coreHandler;
+core.init();
+
+const eventHandler   = core.eventHandler;
+const serverHandler  = core.serverHandler;
+const messageHandler = core.messageHandler;
+const moduleHandler  = core.moduleHandler;
+const channelHandler = core.channelHandler;
+const userHandler    = core.userHandler;
+const utils          = core.utils;
 
 const logger = require( "./src/logging.js" ).Logger;
 
@@ -66,15 +69,7 @@ if( false ) {
 
 function middlewareHandler() {
 	return function( client, raw_events, parsed_events ) {
-		moduleHandler.client = client;
-
-		utils.init( client );
-		serverHandler.init( client );
-		channelHandler.init( client );
-		eventHandler.init( client );
-		channelHandler.init( client );
-		messageHandler.init( client, bot );
-		userHandler.init( client );
+		core.assignClient( client );
 
 		parsed_events.use( eventHandler.parsedHandler );
 	};

@@ -1,8 +1,8 @@
-const config    = require( "../.config/config.js" ).Config;
-const cmdPrefix = config.bot_config.irc_server.command_prefix;
-const colors    = require( "colors" );
-const logger    = require( "./logging.js" ).Logger;
-const modules   = require( "./module-handler.js" ).Modules;
+const config = require( "../.config/config.js" ).Config;
+const colors = require( "colors" );
+const logger = require( "./logging.js" ).Logger;
+
+const core = require( "./core-handler.js" ).coreHandler;
 
 /**
  * @alias serverHandler
@@ -10,7 +10,7 @@ const modules   = require( "./module-handler.js" ).Modules;
 let self;
 
 const serverHandler = {
-	config:         {},
+	config:         config,
 	client:         {},
 	servers:        {},
 	myaccount:      {},
@@ -33,8 +33,6 @@ const serverHandler = {
 		}
 
 		if( typeof self.servers[ network ].caps !== "undefined" ) {
-			logger.info( "Skipping " + network + " as I already have it." );
-
 			return;
 		}
 
@@ -60,6 +58,7 @@ const serverHandler = {
 		const caps                                      = Object.keys( event.capabilities );
 		self.caps[ self.config.level.server_name ]      = {};
 		self.caps[ self.config.level.server_name ].caps = caps;
+		logger.info( `Added ${self.config.level.server_name.bold} to the server pool` );
 	},
 
 	serverMessage: function( event, command ) {
