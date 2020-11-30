@@ -4,8 +4,8 @@ const crypto = require( "crypto" );
 let self;
 
 const auth = {
-	client: "",
-	logger: "",
+	client: null,
+	logger: null,
 	name:   "Authentication",
 
 	register: function( str, event, prefix = true ) {

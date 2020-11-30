@@ -59,7 +59,8 @@ const admin = {
 			return;
 		}
 
-		core.channelHandler.onJoinPart( event, "join", str );
+		console.log( str[ 0 ]);
+		core.channelHandler.onJoinPart( event, "join", str[ 0 ]);
 
 		core.messageHandler.sendCommandMessage( target, `Joining channels ${JSON.stringify( str )}`, prefix, name );
 	},

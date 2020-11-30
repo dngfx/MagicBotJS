@@ -63,44 +63,45 @@ const channelHandler = {
 					return;
 				}
 			}
+		}
 
-			if(
-				joinpart === "join" &&
-				channels.length > 0 &&
-				typeof channels !== "string"
-			) {
-				let cur_channel;
-				for( const channel in channels ) {
-					cur_channel = channels[ channel ];
-					if( typeof self.channels[ cur_channel ] === "undefined" ) {
-						self.channels[ cur_channel ] = {};
-						logger.info( `${event.nick} joined ${cur_channel}` );
-					}
-				}
-
-				self.joinChannel( channels.join( "," ) );
-
-				return;
-			} else {
-				if( joinpart === "join" ) {
-					if( typeof self.channels[ channels ] === "undefined" ) {
-						self.channels[ channels ] = {};
-					}
-
-					const channel =
-						channels !== null ? channels : event.channel;
-
-					self.joinChannel( channel );
-
-					return;
+		if(
+			joinpart === "join" &&
+			typeof channels !== "string" &&
+			channels.length > 0
+		) {
+			let cur_channel;
+			for( const channel in channels ) {
+				cur_channel = channels[ channel ];
+				if( typeof self.channels[ cur_channel ] === "undefined" ) {
+					self.channels[ cur_channel ] = {};
+					logger.info( `${event.nick} joined ${cur_channel}` );
 				}
 			}
 
-			const channel = channels;
+			self.joinChannel( channels.join( "," ) );
 
-			delete self.channels[ channel ];
-			self.partChannel( channel );
+			return;
+		} else {
+			console.log( "we're here " + channels );
+			if( joinpart === "join" ) {
+				const channel = channels !== null ? channels : event.channel;
+
+				if( typeof self.channels[ channel ] === "undefined" ) {
+					self.channels[ channels ] = {};
+				}
+
+				logger.info( `Joining channel ${channel.bold}` );
+				self.joinChannel( channel );
+
+				return;
+			}
 		}
+
+		const channel = channels;
+
+		delete self.channels[ channel ];
+		self.partChannel( channel );
 
 		const action = joinpart === "join" ? "joined" : "parted";
 

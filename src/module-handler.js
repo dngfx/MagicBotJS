@@ -97,6 +97,7 @@ const moduleHandler = {
 
 		self.loadedModules[ moduleName ]          = require( file );
 		self.loadedModules[ moduleName ].fileName = file;
+		self.loadedModules[ moduleName ].client   = self.client;
 
 		Object.getOwnPropertyNames( self.loadedModules[ moduleName ]).forEach( ( var_name ) => {
 			const isFunction =
