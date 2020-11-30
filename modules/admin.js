@@ -106,6 +106,17 @@ const admin = {
 		const result = core.moduleHandler.reloadAllModules();
 		core.messageHandler.sendCommandMessage( target, result, prefix, name );
 	},
+
+	shutdownjs: function( str, event, prefix = true ) {
+		let message = "Bye";
+		console.log( str );
+		if( str[ 0 ] !== "shutdownjs" ) {
+			message = str[ 0 ];
+		}
+
+		self.client.quit( message );
+		process.exit( 1 );
+	},
 };
 
 self           = admin;
