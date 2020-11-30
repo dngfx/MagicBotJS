@@ -12,13 +12,13 @@ const db = new sqlite( db_path, {
 //db.pragma( "journal_mode = WAL" );
 db.pragma( "synchronous = FULL" );
 
+let self;
+
 const database = {
 	server_config: {},
 	server_alias:  {},
 
 	init: function() {
-		self = database;
-
 		const stmt = db.prepare( "SELECT * FROM servers WHERE enabled = 'true'" );
 		let key, row, server_id, value;
 
@@ -45,7 +45,6 @@ const database = {
 	},
 
 	getConfig: function( server ) {
-		self          = database;
 		const network =
 			typeof server === "number" ? self.server_alias[ server ] : server;
 
@@ -82,4 +81,5 @@ const database = {
 	},
 };
 
+self             = database;
 exports.Database = database;

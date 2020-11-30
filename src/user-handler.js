@@ -17,7 +17,6 @@ const userHandler = {
 	users:  {},
 
 	init: function( client ) {
-		self        = userHandler;
 		self.client = client;
 		self.config = config;
 

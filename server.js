@@ -6,6 +6,7 @@ Database.init();
 const dbConfig = Database.getConfig( 1 );
 
 const serverConfig   = config.bot_config.irc_server;
+const utils          = require( "./src/utils.js" ).utils;
 const eventHandler   = require( "./src/event-handler.js" ).EventHandler;
 const moduleHandler  = require( "./src/module-handler.js" ).Modules;
 const messageHandler = require( "./src/message-handler.js" ).messageHandler;
@@ -67,6 +68,7 @@ function middlewareHandler() {
 	return function( client, raw_events, parsed_events ) {
 		moduleHandler.client = client;
 
+		utils.init( client );
 		serverHandler.init( client );
 		channelHandler.init( client );
 		eventHandler.init( client );

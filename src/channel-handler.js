@@ -59,7 +59,11 @@ const channelHandler = {
 	onJoinPart: function( event, joinpart, channels = null ) {
 		if( self.client.user.nick === event.nick ) {
 			if( channels === null ) {
-				return;
+				if( typeof event.channel === "string" ) {
+					channels = event.channel;
+				} else {
+					return;
+				}
 			}
 
 			if(
@@ -81,6 +85,7 @@ const channelHandler = {
 				return;
 			} else {
 				if( joinpart === "join" ) {
+					console.log( typeof self.channels[ channels ]);
 					if( typeof self.channels[ channels ] === "undefined" ) {
 						self.channels[ channels ] = {};
 					}
