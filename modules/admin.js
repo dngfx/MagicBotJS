@@ -110,7 +110,6 @@ const admin = {
 
 	shutdownjs: function( str, event, prefix = true ) {
 		let message = "Bye";
-		console.log( str );
 		if( str[ 0 ] !== "shutdownjs" ) {
 			message = str[ 0 ];
 		}

@@ -122,6 +122,7 @@ const moduleHandler = {
 	},
 
 	initModules: function( client ) {
+		self.client = client;
 		logger.info( "Loading modules" );
 		self.modulePath = path.join( __dirname, "../modules" );
 		glob.sync( self.modulePath + "/*.js" ).forEach( ( file ) => {
