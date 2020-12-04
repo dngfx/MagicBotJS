@@ -2,12 +2,12 @@
   "name": "magic-bot-js",
   "version": "1.0.0",
   "description": "It's MagicBot, just in Node",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["irc-bot", "dynamic-modules", "terrible-code"],
+  "author": "dngfx <294904+dngfx@users.noreply.github.com>",
   "license": "WTFPL",
   "dependencies": {
     "babel-eslint": "^10.1.0",
@@ -20,7 +20,6 @@
     "irc-framework": "^4.9.0",
     "moment": "^2.29.1",
     "prettier": "^2.1.2",
-    "require-dir": "^1.2.0",
     "url-parse": "^1.4.7",
     "winston": "^3.3.3",
     "winston-timestamp-colorize": "^1.1.0"
