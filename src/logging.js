@@ -3,6 +3,7 @@ const {createLogger, format, transports, addColors} = require( "winston" );
 const timestampColor                                = require( "winston-timestamp-colorize" );
 const Database                                      = require( "../src/db.js" ).Database;
 const config                                        = require( "../.config/config.js" ).Config;
+const color                                         = require( "irc-colors" );
 
 const prefix    = "Server";
 const logConfig = {
@@ -35,7 +36,9 @@ const myFormat = format.combine(
 	format.colorize(),
 	format.align(),
 	format.printf( ( info ) =>
-		`[${info.timestamp}] [${config.level.server_name}] [${info.level}]: ${info.message}` )
+		`[${info.timestamp}] [${config.level.server_name}] [${
+			info.level
+		}]: ${color.stripColorsAndStyle( info.message )}` )
 	//format.printf( ( info ) => "" )
 );
 
