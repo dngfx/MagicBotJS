@@ -17,6 +17,10 @@ const Utils = {
 		return moment().format( "X.SSSSSS" );
 	},
 
+	prevent_highlight: function( user ) {
+		return `${user[ 0 ]}\u200c${user.substr( 1 )}`;
+	},
+
 	convertYTTime: function( input ) {
 		const reptms = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/;
 		let hours    = 0,

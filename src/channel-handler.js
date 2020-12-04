@@ -171,7 +171,10 @@ const channelHandler = {
 			return false;
 		}
 
-		return self.channels[ channel ];
+		const list = self.channels[ channel ];
+		delete list.topic;
+
+		return list;
 	},
 
 	addUserToDb: function( user ) {

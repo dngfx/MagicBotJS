@@ -82,20 +82,19 @@ const admin = {
 		const name   = self.name;
 		const target = event.target[ 0 ] === "#" ? event.target : event.nick;
 
-		if( event.target[ 0 ] === "#" ) {
-			core.messageHandler.sendCommandMessage( event.target, "This command can only be used in a private message", prefix, self.name );
-
-			return;
-		}
-
 		if( str[ 0 ] === "listusers" ) {
 			str = target;
 		} else {
 			str = str[ 0 ];
 		}
 
-		const info  = core.channelHandler.getChannelUsers( str );
-		const users = Object.keys( info ).join( ", " );
+		const info = core.channelHandler.getChannelUsers( str );
+		let users  = [];
+		Object.keys( info ).forEach( ( user ) => {
+			users.push( core.utils.prevent_highlight( user ) );
+		});
+
+		users = users.join( ", " );
 
 		core.messageHandler.sendCommandMessage( target, `Users in ${str}: ${users}`, prefix, name );
 	},

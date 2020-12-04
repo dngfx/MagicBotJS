@@ -71,7 +71,98 @@ const youtube = {
 
 				const video_info = {
 					title:    result.info.title,
-					posted:   moment( result.info.publishedAt ).format( "Do MMM YY [at] ha" ),
+					posted:   moment( result.info.publishedAt ).format( "Do MMM YY [at] h:mma" ),
+					poster:   result.info.channelTitle,
+					views:    nf.format( result.stats.viewCount ),
+					likes:    result.stats.likeCount + "↑",
+					dislikes: "↓" + result.stats.dislikeCount,
+					duration: duration,
+				};
+
+				const message = `${video_info.title.irc.bold()} (${
+					video_info.duration
+				}) uploaded by ${video_info.poster.irc.bold()} on ${
+					video_info.posted
+				}, ${
+					video_info.views
+				} views (${video_info.likes.irc.green()} ${video_info.dislikes.irc.red()}) - ${shortlink}`;
+
+				core.messageHandler.sendCommandMessage( target, message, true, self.name );
+			});
+	},
+
+	search: async function( query ) {
+		const res = await yt.search
+			.list({
+				maxResults: 1,
+				q:          query,
+				part:       "snippet",
+				type:       "video",
+				key:        self.apikey,
+			})
+			.then( ( res ) => {
+				if( typeof res.data.items[ 0 ].snippet !== "object" ) {
+					return false;
+				}
+
+				const result = {
+					info: res.data.items[ 0 ],
+				};
+
+				return result.info.id.videoId;
+			});
+
+		return res;
+	},
+
+	yt: async function( str, event, prefix = true ) {
+		const target     = event.target;
+		const is_channel = target[ 0 ] === "#";
+		const query      = str.join( " " );
+
+		if( query === "yt" ) {
+			core.messageHandler.sendCommandMessage( target, `You must provide a search term`, prefix, self.name, true );
+
+			return;
+		}
+
+		const video_id = await self.search( query );
+
+		const shortlink = self.short_url + video_id;
+		const res       = yt.videos
+			.list({
+				maxResults: 1,
+				id:         video_id,
+				part:       "snippet,statistics,contentDetails",
+				type:       "video",
+				key:        self.apikey,
+			})
+			.then( ( res ) => {
+				if( typeof res.data.items[ 0 ].snippet !== "object" ) {
+					return false;
+				}
+
+				const result = {
+					info:    res.data.items[ 0 ].snippet,
+					stats:   res.data.items[ 0 ].statistics,
+					details: res.data.items[ 0 ].contentDetails,
+				};
+
+				let duration = core.utils.convertYTTime( result.details.duration );
+				const hours  = duration[ 0 ];
+				const mins   = duration[ 1 ];
+				const secs   = duration[ 2 ];
+
+				if( hours !== 0 ) {
+					duration = `${hours}h${mins}m${secs}s`;
+				} else {
+					duration = `${mins}m${secs}s`;
+				}
+				const nf = new Intl.NumberFormat();
+
+				const video_info = {
+					title:    result.info.title,
+					posted:   moment( result.info.publishedAt ).format( "Do MMM YY [at] h:mma" ),
 					poster:   result.info.channelTitle,
 					views:    nf.format( result.stats.viewCount ),
 					likes:    result.stats.likeCount + "↑",
