@@ -6,7 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["irc-bot", "dynamic-modules", "terrible-code"],
+  "keywords": [
+    "irc-bot",
+    "dynamic-modules",
+    "terrible-code"
+  ],
   "author": "dngfx <294904+dngfx@users.noreply.github.com>",
   "license": "WTFPL",
   "dependencies": {
