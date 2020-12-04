@@ -99,6 +99,10 @@ const moduleHandler = {
 		self.loadedModules[ moduleName ].fileName = file;
 		self.loadedModules[ moduleName ].client   = self.client;
 
+		if( typeof self.loadedModules[ moduleName ].hooks !== "undefined" ) {
+			logger.info( `Found hooks for ${moduleName}: ${JSON.stringify( Object.getOwnPropertyNames( self.loadedModules[ moduleName ].hooks ) )}` );
+		}
+
 		Object.getOwnPropertyNames( self.loadedModules[ moduleName ]).forEach( ( var_name ) => {
 			const isFunction =
 					typeof self.loadedModules[ moduleName ][ var_name ] ===
@@ -129,7 +133,6 @@ const moduleHandler = {
 			if( !hasHook ) {
 				return;
 			}
-			logger.info( `Found hooks! ${JSON.stringify( self.loadedModules[ module ].hooks )}` );
 
 			if(
 				self.loadedModules[ module ].hooks.hasOwnProperty( hook ) &&

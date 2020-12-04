@@ -30,24 +30,6 @@ const youtube = {
 			return;
 		}
 
-		/*
-{
-  slashes: true,
-  protocol: 'https:',
-  hash: '',
-  query: { v: 'mL_1IXedo-M' },
-  pathname: '/watch',
-  auth: '',
-  host: 'www.youtube.com',
-  port: '',
-  hostname: 'www.youtube.com',
-  password: '',
-  username: '',
-  origin: 'https://www.youtube.com',
-  href: 'https://www.youtube.com/watch?v=mL_1IXedo-M'
-}
-		*/
-
 		let video_id = "";
 		link         = parse( link[ 0 ], true );
 		if( link.host.match( "youtu.be" ) ) {
