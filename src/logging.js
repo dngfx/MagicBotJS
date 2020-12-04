@@ -1,9 +1,9 @@
 /* eslint-disable function-call-argument-newline */
 const {createLogger, format, transports, addColors} = require( "winston" );
 const timestampColor                                = require( "winston-timestamp-colorize" );
-const Database                                      = require( "../src/db.js" ).Database;
 const config                                        = require( "../.config/config.js" ).Config;
-const color                                         = require( "irc-colors" );
+const core                                          = require( "./core-handler.js" ).coreHandler;
+const colors                                        = require( "colors" );
 
 const prefix    = "Server";
 const logConfig = {
@@ -36,19 +36,21 @@ const myFormat = format.combine(
 	format.colorize(),
 	format.align(),
 	format.printf( ( info ) =>
-		`[${info.timestamp}] [${config.level.server_name}] [${
+		`[${info.timestamp}] [${config.level.server_name.bold.magenta}] [${
 			info.level
-		}]: ${color.stripColorsAndStyle( info.message )}` )
+		}]: ${core.utils.convert_irc_to_console( info.message )}` )
 	//format.printf( ( info ) => "" )
 );
 
 const logger = createLogger({
 	transports: [
 		new transports.Console({
-			format: myFormat,
-			level:  Database.getBotSetting( "log-level" ),
+			handleExceptions: true,
+			format:           myFormat,
+			level:            core.db.getBotSetting( "log-level" ),
 		}),
 	],
+	exitOnError: false,
 });
 
 addColors( logConfig.colors );

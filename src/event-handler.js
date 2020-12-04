@@ -1,8 +1,8 @@
 const config    = require( "../.config/config.js" ).Config;
 const cmdPrefix = config.bot_config.irc_server.command_prefix;
 const logger    = require( "./logging.js" ).Logger;
-
-const core = require( "./core-handler.js" ).coreHandler;
+const core      = require( "./core-handler.js" ).coreHandler;
+const colors    = require( "colors" );
 
 let self;
 const eventReactor = {
@@ -11,9 +11,9 @@ const eventReactor = {
 	server: null,
 
 	mode: function( client, event ) {
-		const target = event.target;
-		const nick   = event.nick;
-		const mode   = event.modes;
+		let target = event.target;
+		const nick = event.nick;
+		const mode = event.modes;
 
 		const raw_modes  = event.raw_modes;
 		const raw_params = event.raw_params;
@@ -21,6 +21,14 @@ const eventReactor = {
 		let target_nick      = "";
 		let exit_immediately = 0;
 		const plural         = raw_params.length > 2 ? "s" : "";
+
+		if( target[ 0 ] === "#" ) {
+			mode.forEach( ( mode ) => {
+				const mode_letter = mode.mode[ 1 ];
+				const mode_nick   = mode.param === null ? nick : mode.param;
+				core.channelHandler.addMode( mode_nick, target, mode_letter );
+			});
+		}
 
 		if( raw_params.length > 0 ) {
 			// Are they all for the same person (they should always be for the same person)
@@ -41,7 +49,8 @@ const eventReactor = {
 			if( target === nick ) {
 				logger.info( `${target} set mode${plural} ${raw_modes}` );
 			} else {
-				logger.info( `[${target}] ${nick} sets mode${plural} ${raw_modes} on ${target_nick}` );
+				target = `[${target}]`;
+				logger.info( `${target.bold} ${nick} sets mode${plural} ${raw_modes} on ${target_nick}` );
 			}
 		} else {
 			if( target === nick ) {
@@ -57,7 +66,6 @@ const eventReactor = {
 	},
 
 	message: function( client, message ) {
-		console.log( message );
 		logger.info( message );
 
 		return;
@@ -82,6 +90,11 @@ const eventReactor = {
 		}
 
 		let parsedMessage = message.message;
+		let prefix        = "";
+
+		if( is_channel ) {
+			prefix = core.channelHandler.getMode( message.nick, target );
+		}
 
 		core.moduleHandler.handleHook( "onmessage", client, message );
 
@@ -91,6 +104,7 @@ const eventReactor = {
 				: message.message.split( cmdPrefix )[ 1 ];
 			let args    = cmd.split( " " );
 			let cmdText = "";
+
 			if( args.length < 2 ) {
 				cmdText = cmd;
 			} else {
@@ -117,7 +131,7 @@ const eventReactor = {
 			}
 		}
 
-		const str = `${logBuild}<${message.nick}> ${parsedMessage}`;
+		const str = `${logBuild.bold}<${prefix}${message.nick}> ${parsedMessage}`;
 
 		logger.info( str );
 	},

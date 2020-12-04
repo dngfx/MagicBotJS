@@ -31,9 +31,9 @@ const messageHandler = {
 		const channel_id = is_channel ? `[${target}] ` : "";
 
 		self.client.say( target, message );
-		logger.info( `${channel_id}<${
+		logger.info( `${channel_id.bold}<${
 			self.client.user.nick
-		}> ${message.irc.stripColorsAndStyle()}` );
+		}> ${message.irc.stripColors()}` );
 	},
 
 	sendAction: function( target, message ) {
@@ -60,9 +60,9 @@ const messageHandler = {
 		const channel_id = is_channel === true ? `[${channel}] ` : "";
 
 		self.client.say( target, command + message );
-		logger.info( `${channel_id}<${
+		logger.info( `${channel_id.bold}<${
 			self.client.user.nick
-		}> ${prefixText}${message.irc.stripColorsAndStyle()}` );
+		}> ${prefixText}${message.irc.stripColors()}` );
 	},
 };
 

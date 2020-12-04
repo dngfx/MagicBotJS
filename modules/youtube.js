@@ -79,14 +79,15 @@ const youtube = {
 					duration: duration,
 				};
 
-				console.log( `${video_info.title.bold} (${video_info.duration}) uploaded by ${video_info.poster.bold} on ${video_info.posted}, ${video_info.views} (↑${video_info.likes}↓${video_info.dislikes})` );
-				core.messageHandler.sendCommandMessage( target, `${video_info.title.irc.bold()} (${
+				const message = `${video_info.title.irc.bold()} (${
 					video_info.duration
 				}) uploaded by ${video_info.poster.irc.bold()} on ${
 					video_info.posted
 				}, ${
 					video_info.views
-				} views (${video_info.likes.irc.green()} ${video_info.dislikes.irc.red()}) - ${shortlink}`, true, self.name );
+				} views (${video_info.likes.irc.green()} ${video_info.dislikes.irc.red()}) - ${shortlink}`;
+
+				core.messageHandler.sendCommandMessage( target, message, true, self.name );
 			});
 	},
 };

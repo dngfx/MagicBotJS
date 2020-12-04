@@ -127,7 +127,7 @@ const moduleHandler = {
 
 	handleHook: function( hook, client, message ) {
 		Object.getOwnPropertyNames( self.loadedModules ).forEach( ( module ) => {
-			logger.debug( `Checking module ${module} for hooks` );
+			logger.silly( `Checking module ${module} for hooks` );
 			const hasHook =
 				typeof self.loadedModules[ module ].hooks !== "undefined";
 			if( !hasHook ) {

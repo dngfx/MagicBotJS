@@ -15,6 +15,13 @@ const channelHandler = {
 	client:           null,
 	channels:         {},
 	default_channels: null,
+	mode_prefix:      {
+		q: "~",
+		a: "&",
+		o: "@",
+		h: "%",
+		v: "+",
+	},
 
 	init: function( client ) {
 		self        = channelHandler;
@@ -22,10 +29,40 @@ const channelHandler = {
 		self.config = config.bot_config.irc_server;
 	},
 
+	addMode: function( user, channel, mode ) {
+		if( typeof self.channels[ channel ][ user ].modes === "undefined" ) {
+			self.channels[ channel ][ user ].modes = {};
+		}
+
+		if( typeof self.channels[ channel ][ user ].modes[ mode ] !== "undefined" ) {
+			self.channels[ channel ][ user ].modes[ mode ] = self.mode_prefix[ mode ];
+		}
+	},
+
+	getMode: function( nick, channel ) {
+		const user = self.channels[ channel ][ nick ].modes;
+		let mode   = "";
+
+		for( const char in user ) {
+			if( mode !== "" || user.length === 0 ) {
+				break;
+			}
+
+			mode = self.mode_prefix[ user[ char ] ];
+
+			return mode;
+		}
+
+		return mode;
+	},
+
+	setUserModes: function( channel ) {
+		self.client.raw( "NAMES " + channel );
+	},
+
 	joinChannel: function( channel ) {
 		if( typeof channel === "string" && channel.includes( "," ) ) {
 			const channels = channel.split( "," );
-			console.log( channels );
 			channels.forEach( ( channel_name ) => {
 				logger.info( "Joining Channel " + channel_name );
 				self.channels[ channel_name ] = {};
@@ -52,6 +89,8 @@ const channelHandler = {
 
 	topicSetBy: function( info ) {
 		logger.info( `Topic for ${info.channel.bold} was set by ${info.nick.bold}` );
+
+		self.setUserModes( info.channel );
 	},
 
 	onJoinPart: function( event, joinpart, channels = null ) {
@@ -79,7 +118,6 @@ const channelHandler = {
 
 			return;
 		} else {
-			console.log( "we're here " + channels );
 			if( joinpart === "join" ) {
 				const channel = channels !== null ? channels : event.channel;
 
@@ -123,6 +161,7 @@ const channelHandler = {
 			self.channels[ channel ][ cur_user.nick ] = {
 				nick:  cur_user.nick,
 				ident: cur_user.ident,
+				modes: cur_user.modes,
 			};
 		}
 	},
@@ -150,7 +189,7 @@ const channelHandler = {
 			return;
 		}
 
-		logger.info( `[SERVER NOTICE] ${event.message}` );
+		logger.info( `${"[SERVER NOTICE]".bold} ${event.message}` );
 	},
 
 	handleCommand: function( command, event, client, next ) {

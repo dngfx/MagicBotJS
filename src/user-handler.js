@@ -10,9 +10,16 @@ const core = require( "./core-handler.js" ).coreHandler;
 let self;
 
 const userHandler = {
-	config: null,
-	client: null,
-	users:  {},
+	config:      null,
+	client:      null,
+	users:       {},
+	mode_prefix: {
+		q: "~",
+		a: "&",
+		o: "@",
+		h: "%",
+		v: "+",
+	},
 
 	init: function( client ) {
 		self.client = client;
@@ -32,6 +39,13 @@ const userHandler = {
 		self.users[ user.nick ]                       = user;
 		self.users[ user.nick ].authenticated         = false;
 		self.users[ user.nick ].authenticated_account = null;
+		self.users[ user.nick ].modes                 = [];
+	},
+
+	addMode: function( user, mode ) {
+		if( typeof self.users[ user ].modes[ mode ] !== "undefined" ) {
+			self.users[ user ].modes[ mode ] = true;
+		}
 	},
 
 	removeUser: function( client, event ) {
