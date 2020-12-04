@@ -1,3 +1,6 @@
+const fs   = require( "fs" );
+const path = require( "path" );
+const ini  = require( "ini" );
 let self;
 
 const coreHandler = {
@@ -11,6 +14,7 @@ const coreHandler = {
 	userHandler:    null,
 	utils:          null,
 	init_complete:  null,
+	api_keys:       null,
 
 	init: function() {
 		if( self.init_complete !== null ) {
@@ -24,6 +28,7 @@ const coreHandler = {
 		self.channelHandler = require( "./channel-handler.js" ).channelHandler;
 		self.serverHandler  = require( "./server-handler.js" ).serverHandler;
 		self.userHandler    = require( "./user-handler.js" ).userHandler;
+		self.api_keys       = ini.parse( fs.readFileSync( path.join( __dirname, "..", ".config", "api.ini" ), "utf-8" ) ).bot;
 
 		self.init_complete = true;
 	},

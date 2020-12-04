@@ -121,6 +121,25 @@ const moduleHandler = {
 		return [ true, `Loaded module ${moduleName} successfully` ];
 	},
 
+	handleHook: function( hook, client, message ) {
+		Object.getOwnPropertyNames( self.loadedModules ).forEach( ( module ) => {
+			logger.info( `Checking module ${module} for hooks` );
+			const hasHook =
+				typeof self.loadedModules[ module ].hooks !== "undefined";
+			if( !hasHook ) {
+				return;
+			}
+			logger.info( `Found hooks! ${JSON.stringify( self.loadedModules[ module ].hooks )}` );
+
+			if(
+				self.loadedModules[ module ].hooks.hasOwnProperty( hook ) &&
+				typeof self.loadedModules[ module ].hooks[ hook ] === "function"
+			) {
+				self.loadedModules[ module ].hooks[ hook ]( message, client );
+			}
+		});
+	},
+
 	initModules: function( client ) {
 		self.client = client;
 		logger.info( "Loading modules" );

@@ -83,6 +83,8 @@ const eventReactor = {
 
 		let parsedMessage = message.message;
 
+		core.moduleHandler.handleHook( "onmessage", client, message );
+
 		if( maybe_command && ( is_channel || is_private ) ) {
 			const cmd   = is_private
 				? message.message

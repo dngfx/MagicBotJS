@@ -65,11 +65,7 @@ const channelHandler = {
 			}
 		}
 
-		if(
-			joinpart === "join" &&
-			typeof channels !== "string" &&
-			channels.length > 0
-		) {
+		if( joinpart === "join" && typeof channels !== "string" ) {
 			let cur_channel;
 			for( const channel in channels ) {
 				cur_channel = channels[ channel ];
