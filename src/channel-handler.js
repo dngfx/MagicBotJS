@@ -29,50 +29,89 @@ const channelHandler = {
 		self.config = config.bot_config.irc_server;
 	},
 
-	addMode: function( user, channel, mode ) {
-		if( typeof self.channels[ channel ][ user ].modes === "undefined" ) {
-			self.channels[ channel ][ user ].modes = {};
+	initChannel: async function( channel ) {
+		if( typeof channel === "string" && channel in self.channels === false ) {
+			self.channels[ channel ] = {};
+
+			return true;
 		}
 
-		if( typeof self.channels[ channel ][ user ].modes[ mode ] !== "undefined" ) {
-			self.channels[ channel ][ user ].modes[ mode ] = self.mode_prefix[ mode ];
+		if( typeof channel === "object" ) {
+			for( const chan in channel ) {
+				if( chan in self.channels === false ) {
+					self.channels[ channel ] = {};
+				}
+			}
+
+			return true;
+		}
+
+		return true;
+	},
+
+	addMode: function( user, channel, mode, caller = null ) {
+		if( user === channel ) {
+			return;
+		}
+
+		if( user in self.channels[ channel ] === false ) {
+			self.channels[ channel ][ user ] = {};
+		}
+
+		const target = channel;
+
+		if( self.channels[ channel ][ user ].hasOwnProperty( "modes" ) === false ) {
+			self.channels[ channel ][ user ].modes = [];
+		}
+
+		const keys = self.channels[ channel ][ user ].modes;
+
+		if( typeof mode !== "string" ) {
+			const modes = mode;
+			for( const key of modes ) {
+				self.channels[ channel ][ user ][ "modes" ].push( key.substring( 1 ) );
+			}
+
+			logger.info( `Added modes ${keys.join( ", " )} to ${user} on channel ${channel}` );
 		}
 	},
 
 	getMode: function( nick, channel ) {
-		const user = self.channels[ channel ][ nick ].modes;
-		let mode   = "";
-
-		for( const char in user ) {
-			if( mode !== "" || user.length === 0 ) {
-				break;
+		const user = Object.values( self.channels[ channel ][ nick ].modes );
+		for( const prefix in user ) {
+			if( typeof self.mode_prefix[ user[ prefix ] ] === "string" ) {
+				return self.mode_prefix[ user[ prefix ] ];
 			}
-
-			mode = self.mode_prefix[ user[ char ] ];
-
-			return mode;
 		}
 
-		return mode;
+		return "";
 	},
 
 	setUserModes: function( channel ) {
+		if( self.channels.hasOwnProperty( channel ) === false ) {
+			self.initChannel( channel );
+		}
+
+		if(
+			typeof self.channels[ channel ][ self.client.user.nick ] === "undefined"
+		) {
+			self.channels[ channel ][ self.client.user.nick ]       = {};
+			self.channels[ channel ][ self.client.user.nick ].modes = {};
+		}
 		self.client.raw( "NAMES " + channel );
 	},
 
-	joinChannel: function( channel ) {
-		if( typeof channel === "string" && channel.includes( "," ) ) {
-			const channels = channel.split( "," );
-			channels.forEach( ( channel_name ) => {
-				logger.info( "Joining Channel " + channel_name );
-				self.channels[ channel_name ] = {};
-			});
-		} else {
-			logger.info( "Joining Channel " + channel );
-			self.channels[ channel ] = {};
-		}
+	joinChannel: async function( channel ) {
+		logger.info( `Joining Channel ${channel}` );
+		const setup = await self.initChannel( channel ).then( ( res ) => {
+			if( res === true ) {
+				self.client.join( channel );
+			}
 
-		self.client.join( channel );
+			return true;
+		});
+
+		return true;
 	},
 
 	partChannel: function( channel ) {
@@ -89,8 +128,6 @@ const channelHandler = {
 
 	topicSetBy: function( info ) {
 		logger.info( `Topic for ${info.channel.bold} was set by ${info.nick.bold}` );
-
-		self.setUserModes( info.channel );
 	},
 
 	onJoinPart: function( event, joinpart, channels = null ) {
@@ -109,8 +146,7 @@ const channelHandler = {
 			for( const channel in channels ) {
 				cur_channel = channels[ channel ];
 				if( typeof self.channels[ cur_channel ] === "undefined" ) {
-					self.channels[ cur_channel ] = {};
-					logger.info( `${event.nick} joined ${cur_channel}` );
+					logger.info( `${event.nick} joining ${cur_channel}` );
 				}
 			}
 
@@ -142,11 +178,11 @@ const channelHandler = {
 		logger.info( `${event.nick} ${action} ${event.channel}` );
 	},
 
-	channelUserList: function( event ) {
+	channelUserList: function( command, event ) {
 		const channel = event.channel;
 
 		if( typeof self.channels[ channel ] === "undefined" ) {
-			self.channels[ channel ] = {};
+			self.initChannel( channel );
 		}
 
 		const users = event.users;
@@ -154,8 +190,6 @@ const channelHandler = {
 
 		for( const user in users ) {
 			cur_user = users[ user ];
-
-			core.userHandler.addUser( cur_user );
 
 			self.addUserToDb( cur_user );
 			self.channels[ channel ][ cur_user.nick ] = {
@@ -208,10 +242,6 @@ const channelHandler = {
 
 			case "topicsetby":
 				self.topicSetBy( event );
-				break;
-
-			case "userlist":
-				self.channelUserList( event );
 				break;
 
 			default:

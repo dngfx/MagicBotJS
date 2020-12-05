@@ -17,8 +17,20 @@ const Utils = {
 		return moment().format( "X.SSSSSS" );
 	},
 
+	formatToStandardTime( time ) {
+		return moment( time ).format( "Do MMM YY [at] h:mma" );
+	},
+
+	formatToFancyTime( time, str = "Do MMM YY [at] h:mma" ) {
+		return moment( time ).format( str );
+	},
+
 	prevent_highlight: function( user ) {
 		return `${user[ 0 ]}\u200c${user.substr( 1 )}`;
+	},
+
+	prevent_highlight_filename: function( filename ) {
+		return filename.replace( ".", "\u200c.\u200c" );
 	},
 
 	convertYTTime: function( input ) {
@@ -52,6 +64,24 @@ const Utils = {
 		text = irccolor.stripColors( text );
 
 		return text;
+	},
+
+	sizeConvert: function( size, decimal_places = 0 ) {
+		if( size === 0 ) {
+			return "0 B";
+		}
+
+		const k       = 1024;
+		const decimal = decimal_places < 0 ? 0 : decimal_places;
+		const sizes   = [
+			" B",
+			" KB",
+			" MB" 
+		];
+
+		const i = Math.floor( Math.log( size ) / Math.log( k ) );
+
+		return parseFloat( ( size / Math.pow( k, i ) ).toFixed( decimal ) ) + sizes[ i ];
 	},
 };
 

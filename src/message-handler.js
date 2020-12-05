@@ -40,7 +40,7 @@ const messageHandler = {
 		self.client.action( target, message );
 	},
 
-	sendCommandMessage: function(
+	sendCommandMessage: async function(
 		target,
 		message,
 		prefix = false,
@@ -55,12 +55,16 @@ const messageHandler = {
 			prefixText = `[${prefixText}] `;
 		}
 
+		let user_prefix  = "";
 		const channel    = target;
 		const is_channel = target[ 0 ] === "#";
 		const channel_id = is_channel === true ? `[${channel}] ` : "";
+		if( is_channel === true ) {
+			user_prefix = await core.channelHandler.getMode( self.client.user.nick, channel );
+		}
 
 		self.client.say( target, command + message );
-		logger.info( `${channel_id.bold}<${
+		logger.info( `${channel_id.bold}<${user_prefix}${
 			self.client.user.nick
 		}> ${prefixText}${message.irc.stripColors()}` );
 	},

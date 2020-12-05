@@ -52,7 +52,10 @@ const bot  = new irc.Client({
 	account:            sasl,
 
 	rejectUnauthorized: dbConfig.settings[ "ssl-verify" ],
+	request_extra_caps: [ "userhost-in-names" ],
 });
+
+//bot.request_extra_caps = [ "userhost-in-names" ];
 
 // eslint-disable-next-line no-constant-condition
 if( false ) {

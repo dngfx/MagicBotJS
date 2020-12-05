@@ -6,7 +6,6 @@ const yt       = google.youtube({
 	auth:    core.api_keys[ "google-api-key" ],
 });
 const color    = require( "irc-colors" ).global();
-const moment   = require( "moment" );
 
 let self;
 
@@ -71,7 +70,7 @@ const youtube = {
 
 				const video_info = {
 					title:    result.info.title,
-					posted:   moment( result.info.publishedAt ).format( "Do MMM YY [at] h:mma" ),
+					posted:   core.utils.formatToStandardTime( result.info.publishedAt ),
 					poster:   result.info.channelTitle,
 					views:    nf.format( result.stats.viewCount ),
 					likes:    result.stats.likeCount + "↑",
@@ -148,7 +147,7 @@ const youtube = {
 					details: res.data.items[ 0 ].contentDetails,
 				};
 
-				let duration = core.utils.convertYTTime( result.details.duration );
+				let duration = core.utils.formatToStandardTime( result.details.duration );
 				const hours  = duration[ 0 ];
 				const mins   = duration[ 1 ];
 				const secs   = duration[ 2 ];
@@ -162,7 +161,7 @@ const youtube = {
 
 				const video_info = {
 					title:    result.info.title,
-					posted:   moment( result.info.publishedAt ).format( "Do MMM YY [at] h:mma" ),
+					posted:   core.utils.formatUnixToStr( result.info.publishedAt ),
 					poster:   result.info.channelTitle,
 					views:    nf.format( result.stats.viewCount ),
 					likes:    result.stats.likeCount + "↑",

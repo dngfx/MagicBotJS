@@ -10,7 +10,11 @@ const eventReactor = {
 	client: null,
 	server: null,
 
-	mode: function( client, event ) {
+	mode: async function( client, event ) {
+		if( event.target[ 0 ] === "#" ) {
+			core.channelHandler.initChannel( event.target );
+		}
+
 		let target = event.target;
 		const nick = event.nick;
 		const mode = event.modes;
@@ -18,47 +22,24 @@ const eventReactor = {
 		const raw_modes  = event.raw_modes;
 		const raw_params = event.raw_params;
 
-		let target_nick      = "";
-		let exit_immediately = 0;
-		const plural         = raw_params.length > 2 ? "s" : "";
+		const target_nick      = "";
+		const exit_immediately = 0;
+		const plural           = raw_params.length > 2 ? "s" : "";
 
-		if( target[ 0 ] === "#" ) {
-			mode.forEach( ( mode ) => {
-				const mode_letter = mode.mode[ 1 ];
-				const mode_nick   = mode.param === null ? nick : mode.param;
-				core.channelHandler.addMode( mode_nick, target, mode_letter );
-			});
-		}
-
-		if( raw_params.length > 0 ) {
-			// Are they all for the same person (they should always be for the same person)
-			raw_params.forEach( ( raw_nick ) => {
-				if( raw_nick !== target_nick && target_nick !== "" ) {
-					exit_immediately = 1;
-
-					return;
-				}
-
-				target_nick = raw_nick;
-			});
-
-			if( exit_immediately === 1 ) {
-				return;
+		const modes = {};
+		let user    = "";
+		mode.forEach( ( item, index, array ) => {
+			user = item.param === null ? nick : item.param;
+			if( user in modes === false ) {
+				modes[ user ] = [];
 			}
 
-			if( target === nick ) {
-				logger.info( `${target} set mode${plural} ${raw_modes}` );
-			} else {
-				target = `[${target}]`;
-				logger.info( `${target.bold} ${nick} sets mode${plural} ${raw_modes} on ${target_nick}` );
-			}
-		} else {
-			if( target === nick ) {
-				logger.info( `${target} set mode${plural} ${raw_modes}` );
-			} else {
-				logger.info( `${target} set mode${plural} ${raw_modes} on ${nick}` );
-			}
-		}
+			modes[ user ].push( item.mode );
+		});
+
+		core.channelHandler.addMode( user, target, modes[ user ], "event-handler" );
+		target = `[${target}]`;
+		logger.info( `${target.bold} set mode${plural} ${raw_modes} on ${user}` );
 	},
 
 	pong: function( client, event ) {
@@ -71,7 +52,7 @@ const eventReactor = {
 		return;
 	},
 
-	privateMessage: function( client, message ) {
+	privateMessage: async function( client, message ) {
 		const is_channel    = message.target[ 0 ] === "#";
 		const is_private    = message.target === client.user.nick;
 		const target        = is_channel === true ? message.target : message.nick;
@@ -93,7 +74,7 @@ const eventReactor = {
 		let prefix        = "";
 
 		if( is_channel ) {
-			prefix = core.channelHandler.getMode( message.nick, target );
+			prefix = await core.channelHandler.getMode( message.nick, target );
 		}
 
 		core.moduleHandler.handleHook( "onmessage", client, message );
@@ -264,10 +245,13 @@ const eventHandler = {
 			case "cap ls":
 				break;
 
+			case "userlist":
+				core.channelHandler.channelUserList( command, event );
+				break;
+
 			case "join":
 			case "part":
 			case "topic":
-			case "userlist":
 			case "topicsetby":
 				logger.debug( "Handling client command " + command );
 				core.channelHandler.handleCommand( command, event, client, next );
