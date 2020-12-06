@@ -18,7 +18,7 @@ const messageHandler = {
 		self._bot   = bot;
 	},
 
-	generatePrefix: function( prefix, error = false ) {
+	generatetype: function( prefix, error = false ) {
 		const text = !error
 			? `[${prefix.irc.green.bold()}] `
 			: `[${prefix.irc.red.bold()}] `;

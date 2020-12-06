@@ -15,7 +15,7 @@ const channelHandler = {
 	client:           null,
 	channels:         {},
 	default_channels: null,
-	mode_prefix:      {
+	mode_type:        {
 		q: "~",
 		a: "&",
 		o: "@",
@@ -64,15 +64,20 @@ const channelHandler = {
 			self.channels[ channel ][ user ].modes = [];
 		}
 
-		const keys = self.channels[ channel ][ user ].modes;
+		const keys      = self.channels[ channel ][ user ].modes;
+		const full_keys = [];
 
 		if( typeof mode !== "string" ) {
 			const modes = mode;
 			for( const key of modes ) {
 				self.channels[ channel ][ user ][ "modes" ].push( key.substring( 1 ) );
+				full_keys.push( key );
 			}
 
-			logger.info( `Added modes ${keys.join( ", " )} to ${user} on channel ${channel}` );
+			logger.info({
+				type:    "SERVER NOTICE",
+				message: `Added modes ${full_keys.join( ", " )} to ${user} on channel ${channel}`,
+			});
 		}
 	},
 
@@ -102,7 +107,6 @@ const channelHandler = {
 	},
 
 	joinChannel: async function( channel ) {
-		logger.info( `Joining Channel ${channel}` );
 		const setup = await self.initChannel( channel ).then( ( res ) => {
 			if( res === true ) {
 				self.client.join( channel );
@@ -116,18 +120,27 @@ const channelHandler = {
 
 	partChannel: function( channel ) {
 		self.client.part( channel );
-		logger.info( "Parting Channel " + channel );
+		logger.info({
+			type:    "SERVER NOTICE",
+			message: `Parting Channel ${channel.bold}`,
+		});
 	},
 
 	topic: function( info ) {
 		self.channels[ info.channel ].topic = {};
 		self.channels[ info.channel ].topic = info.topic;
 
-		logger.info( `Topic for ${info.channel.bold} is ${info.topic.bold}` );
+		logger.info({
+			type:    "SERVER NOTICE",
+			message: `Topic for ${info.channel.bold} is ${info.topic.bold}`,
+		});
 	},
 
 	topicSetBy: function( info ) {
-		logger.info( `Topic for ${info.channel.bold} was set by ${info.nick.bold}` );
+		logger.info({
+			type:    "SERVER NOTICE",
+			message: `Topic for ${info.channel.bold} was set by ${info.nick.bold}`,
+		});
 	},
 
 	onJoinPart: function( event, joinpart, channels = null ) {
@@ -142,14 +155,10 @@ const channelHandler = {
 		}
 
 		if( joinpart === "join" && typeof channels !== "string" ) {
-			let cur_channel;
-			for( const channel in channels ) {
-				cur_channel = channels[ channel ];
-				if( typeof self.channels[ cur_channel ] === "undefined" ) {
-					logger.info( `${event.nick} joining ${cur_channel}` );
-				}
-			}
-
+			logger.info({
+				type:    "SERVER NOTICE",
+				message: `Joining Channels ${channels.join( ", " )}`,
+			});
 			self.joinChannel( channels.join( "," ) );
 
 			return;
@@ -161,7 +170,10 @@ const channelHandler = {
 					self.channels[ channels ] = {};
 				}
 
-				logger.info( `Joining channel ${channel.bold}` );
+				logger.info({
+					type:    "SERVER NOTICE",
+					message: `Joining Channel ${channel.bold}`,
+				});
 				self.joinChannel( channel );
 
 				return;
@@ -226,7 +238,7 @@ const channelHandler = {
 			return;
 		}
 
-		logger.info( `${"[SERVER NOTICE]".bold} ${event.message}` );
+		logger.info({type: "SERVER NOTICE", message: event.message});
 	},
 
 	handleCommand: function( command, event, client, next ) {
@@ -245,7 +257,10 @@ const channelHandler = {
 				break;
 
 			default:
-				logger.debug( "Unknown command " + command );
+				logger.debug({
+					type:    "SERVER NOTICE",
+					message: `Unknown command ${command}`,
+				});
 				break;
 		}
 	},
@@ -254,7 +269,10 @@ const channelHandler = {
 		if( self.channels.hasOwnProperty( channel ) ) {
 			return self.channels[ channel ].topic;
 		} else {
-			logger.error( "Could not find channel " + channel );
+			logger.error({
+				type:    "SERVER NOTICE",
+				message: `Could not find channel ${channel}`,
+			});
 		}
 	},
 };

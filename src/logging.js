@@ -38,7 +38,7 @@ const myFormat = format.combine(
 	format.printf( ( info ) =>
 		`[${info.timestamp}] [${config.level.server_name.bold.magenta}] [${
 			info.level
-		}]: ${core.utils.convert_irc_to_console( info.message )}` )
+		}]: ${`[${info.type}]:`.bold.padEnd( 20 )} ${core.utils.convert_irc_to_console( info.message )}` )
 	//format.printf( ( info ) => "" )
 );
 

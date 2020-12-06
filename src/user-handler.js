@@ -10,10 +10,10 @@ const core = require( "./core-handler.js" ).coreHandler;
 let self;
 
 const userHandler = {
-	config:      null,
-	client:      null,
-	users:       {},
-	mode_prefix: {
+	config:    null,
+	client:    null,
+	users:     {},
+	mode_type: {
 		q: "~",
 		a: "&",
 		o: "@",

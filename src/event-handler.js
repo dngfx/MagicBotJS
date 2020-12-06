@@ -15,20 +15,35 @@ const eventReactor = {
 			core.channelHandler.initChannel( event.target );
 		}
 
-		let target = event.target;
-		const nick = event.nick;
-		const mode = event.modes;
+		const is_channel = event.target[ 0 ] === "#";
+		const target     = event.target;
+		const nick       = event.nick;
+		const mode       = event.modes;
 
-		const raw_modes  = event.raw_modes;
-		const raw_params = event.raw_params;
-
-		const target_nick      = "";
+		const raw_modes        = event.raw_modes;
+		const raw_params       = event.raw_params;
+		const target_nick      = is_channel ? event.nick : target;
 		const exit_immediately = 0;
 		const plural           = raw_params.length > 2 ? "s" : "";
+		const real_nick        = typeof raw_params !== "undefined" ? raw_params[ 0 ] : nick;
+		const real_from        = typeof raw_params === "undefined" ? nick : raw_params[ 0 ];
+
+		if( real_from !== real_nick ) {
+			logger.info({
+				title:   `[USER ${real_nick}]`,
+				message: `${real_nick} sets type: ${raw_modes} on ${real_from}`,
+			});
+
+			return;
+		}
 
 		const modes = {};
 		let user    = "";
 		mode.forEach( ( item, index, array ) => {
+			if( index.param === null ) {
+				return;
+			}
+
 			user = item.param === null ? nick : item.param;
 			if( user in modes === false ) {
 				modes[ user ] = [];
@@ -36,10 +51,7 @@ const eventReactor = {
 
 			modes[ user ].push( item.mode );
 		});
-
-		core.channelHandler.addMode( user, target, modes[ user ], "event-handler" );
-		target = `[${target}]`;
-		logger.info( `${target.bold} set mode${plural} ${raw_modes} on ${user}` );
+		core.channelHandler.addMode( user, target, modes[ user ]);
 	},
 
 	pong: function( client, event ) {
@@ -61,13 +73,13 @@ const eventReactor = {
 
 		message.time = process.hrtime.bigint();
 
-		let logBuild = "";
+		let type = "";
 		if( is_channel ) {
-			logBuild += `[${message.target}] `;
+			type = message.target;
 		}
 
 		if( is_private ) {
-			logBuild += `[${message.nick}] `;
+			type = `USER: ${message.nick}`;
 		}
 
 		let parsedMessage = message.message;
@@ -112,9 +124,9 @@ const eventReactor = {
 			}
 		}
 
-		const str = `${logBuild.bold}<${prefix}${message.nick}> ${parsedMessage}`;
+		const str = `<${prefix}${message.nick}> ${parsedMessage}`;
 
-		logger.info( str );
+		logger.info({type: type, message: str});
 	},
 
 	unknown: function( client, info, command ) {
@@ -164,10 +176,16 @@ const eventReactor = {
 		}
 
 		if( command === "unknown command" ) {
-			logger.info( `Nonsense command: ${JSON.stringify( info )}` );
+			logger.info({
+				type:    "EVENT",
+				message: `Nonsense command: ${JSON.stringify( info )}`,
+			});
 			console.log( command, info );
 		} else {
-			logger.warn( `Unknown command: ${command}` );
+			logger.warn({
+				type:    "EVENT",
+				message: `Unknown command: ${command}`,
+			});
 			console.log( "--- " + command + " START ---" );
 			console.log( info );
 			console.log( "--- " + command + " END -----" );
@@ -204,7 +222,6 @@ const eventHandler = {
 		//console.log( command, JSON.stringify( event ) );
 		switch ( command ) {
 			case "registered":
-				logger.info( "Registered to server successfully" );
 				core.channelHandler.onJoinPart( event, "join", core.channelHandler.default_channels );
 				break;
 
@@ -253,7 +270,10 @@ const eventHandler = {
 			case "part":
 			case "topic":
 			case "topicsetby":
-				logger.debug( "Handling client command " + command );
+				logger.debug({
+					type:    "[EVENT]",
+					message: `Handling client command ${command}`,
+				});
 				core.channelHandler.handleCommand( command, event, client, next );
 
 				return;

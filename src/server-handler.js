@@ -44,21 +44,30 @@ const serverHandler = {
 
 		self.servers[ network ].caps = server_options;
 		delete self.caps[ network ];
-		logger.debug( `Added ${network.bold} to the server pool` );
+		logger.debug({
+			type:    "SERVER NOTICE",
+			message: `Added ${network.bold} to the server pool`,
+		});
 	},
 
 	account: function( event ) {
 		self.myaccount[ event.account ] = {};
 		self.myaccount[ event.account ] = event;
 
-		logger.info( `Account ${event.account.bold} recognised. ${event.nick.bold}!${event.ident.bold}@${event.hostname.bold}` );
+		logger.info({
+			type:    "SERVER EVENT",
+			message: `Account ${event.account.bold} recognised. ${event.nick.bold}!${event.ident.bold}@${event.hostname.bold}`,
+		});
 	},
 
 	capabilities: function( event ) {
 		const caps                                      = Object.keys( event.capabilities );
 		self.caps[ self.config.level.server_name ]      = {};
 		self.caps[ self.config.level.server_name ].caps = caps;
-		logger.info( `Added ${self.config.level.server_name.bold} to the server pool` );
+		logger.info({
+			type:    "SERVER EVENT",
+			message: `Added ${self.config.level.server_name.bold} to the server pool`,
+		});
 	},
 
 	serverMessage: function( event, command ) {
@@ -92,7 +101,10 @@ const serverHandler = {
 				break;
 
 			case "loggedin":
-				logger.info( `Now logging in. Nick: ${event.nick} Account: ${event.account}` );
+				logger.info({
+					type:    "SERVER NOTICE",
+					message: `Now logging in. Nick: ${event.nick} Account: ${event.account}`,
+				});
 				break;
 
 			case "server options":
@@ -108,7 +120,10 @@ const serverHandler = {
 				break;
 
 			default:
-				console.error( "No handler for " + type );
+				console.error({
+					type:    "SERVER NOTICE",
+					message: `No handler for ${type}`,
+				});
 				break;
 		}
 	},
@@ -142,15 +157,21 @@ const serverHandler = {
 
 		self.server_notices[ network ][ message ] = true;
 
-		logger.info( `${"[SERVER NOTICE]".bold} ${message}` );
+		logger.info({type: "SERVER NOTICE", message: message});
 	},
 
 	unknown: function( client, info, command ) {
 		if( command === "unknown command" ) {
-			logger.error( `Unknown command: ${JSON.stringify( info.command )}` );
+			logger.error({
+				type:    "SERVER NOTICE",
+				message: `Unknown command: ${JSON.stringify( info.command )}`,
+			});
 			console.log( command, info );
 		} else {
-			logger.warn( `Unknown command: ${command}` );
+			logger.warn({
+				type:    "SERVER EVENT",
+				message: ` Unknown command: ${command}`,
+			});
 			console.log( "--- " + command + " START ---" );
 			console.log( info );
 			console.log( "--- " + command + " END -----" );

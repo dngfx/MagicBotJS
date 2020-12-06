@@ -23,7 +23,10 @@ const moduleHandler = {
 
 	reloadModule: function( moduleName ) {
 		if( !self.moduleExists( moduleName ) ) {
-			logger.error( `Could not reload module ${moduleName.bold}, module does not exist.` );
+			logger.error({
+				type:    "SERVER MDULES",
+				message: `Could not reload module ${moduleName.bold}, module does not exist.`,
+			});
 
 			return `Could not reload module ${moduleName}, module does not exist.`;
 		}
@@ -58,7 +61,10 @@ const moduleHandler = {
 
 	deleteModule: function( moduleName ) {
 		if( !self.moduleExists( moduleName ) ) {
-			logger.error( `Could not unload module ${moduleName.bold}, module does not exist.` );
+			logger.error({
+				type:    "SERVER MDULES",
+				message: `Could not unload module ${moduleName.bold}, module does not exist.`,
+			});
 
 			return [ false, `Could not unload module ${moduleName}, module does not exist.`, ];
 		}
@@ -75,20 +81,29 @@ const moduleHandler = {
 		});
 
 		functions_deleted = functions_deleted.join( " " );
-		logger.debug( "Functions deleted: " + functions_deleted );
+		logger.debug({
+			type:    "SERVER MDULES",
+			message: `Functions deleted: ${functions_deleted}`,
+		});
 
 		delete self.moduleFunctions[ moduleName ];
 		delete self.loadedModules[ moduleName ];
 		delete require.cache[ name ];
 
-		logger.debug( "Deleted all references" );
+		logger.debug({
+			type:    "SERVER MDULES",
+			message: `Deleted all references`,
+		});
 
 		return [ true, `Unloaded module ${moduleName} successfully` ];
 	},
 
 	loadModule: function( moduleName, file ) {
 		if( self.moduleExists( moduleName ) ) {
-			logger.error( `Could not load module ${moduleName.bold}, module already exists.` );
+			logger.error({
+				type:    "SERVER MDULES",
+				message: `Could not load module ${moduleName.bold}, module already exists.`,
+			});
 
 			return [ false, `Could not load module ${moduleName}, module already exists.`, ];
 		}
@@ -100,7 +115,10 @@ const moduleHandler = {
 		self.loadedModules[ moduleName ].client   = self.client;
 
 		if( typeof self.loadedModules[ moduleName ].hooks !== "undefined" ) {
-			logger.info( `Found hooks for ${moduleName}: ${JSON.stringify( Object.getOwnPropertyNames( self.loadedModules[ moduleName ].hooks ) )}` );
+			logger.info({
+				type:    "SERVER NOTICE",
+				message: `Found hooks for ${moduleName}: ${JSON.stringify( Object.getOwnPropertyNames( self.loadedModules[ moduleName ].hooks ) )}`,
+			});
 		}
 
 		Object.getOwnPropertyNames( self.loadedModules[ moduleName ]).forEach( ( var_name ) => {
@@ -109,7 +127,10 @@ const moduleHandler = {
 					"function";
 			if( isFunction === true ) {
 				if( typeof self.commandPathway[ var_name ] !== "undefined" ) {
-					logger.error( "Could not redefine function " + var_name.bold );
+					logger.error({
+						type:    "SERVER MDULES",
+						message: `Could not redefine function ${var_name.bold}`,
+					});
 
 					return [ false, "Could not redefine function " + var_name, ];
 				}
@@ -127,7 +148,10 @@ const moduleHandler = {
 
 	handleHook: function( hook, client, message ) {
 		Object.getOwnPropertyNames( self.loadedModules ).forEach( ( module ) => {
-			logger.silly( `Checking module ${module} for hooks` );
+			logger.silly({
+				type:    "SERVER MDULES",
+				message: `Checking module ${module} for hooks`,
+			});
 			const hasHook =
 				typeof self.loadedModules[ module ].hooks !== "undefined";
 			if( !hasHook ) {
@@ -138,7 +162,10 @@ const moduleHandler = {
 				self.loadedModules[ module ].hooks.hasOwnProperty( hook ) &&
 				typeof self.loadedModules[ module ].hooks[ hook ] === "function"
 			) {
-				logger.debug( `Executing hook ${hook} for module ${module}` );
+				logger.debug({
+					type:    "SERVER MDULES",
+					message: `Executing hook ${hook} for module ${module}`,
+				});
 				self.loadedModules[ module ].hooks[ hook ]( message, client );
 			}
 		});
@@ -146,7 +173,7 @@ const moduleHandler = {
 
 	initModules: function( client ) {
 		self.client = client;
-		logger.info( "Loading modules" );
+		logger.info({type: "SERVER MDULES", message: `Loading modules`});
 		self.modulePath = path.join( __dirname, "../modules" );
 		glob.sync( self.modulePath + "/*.js" ).forEach( ( file ) => {
 			const dash = file.split( "/" );
@@ -156,18 +183,24 @@ const moduleHandler = {
 			if( dot.length === 2 ) {
 				const key = dot[ 0 ];
 
-				logger.info( `${"[MODULES]".bold} Loaded ${key}` );
+				logger.info({
+					type:    "SERVER MDULES",
+					message: `Loaded ${key}`,
+				});
 				self.loadModule( key, file );
 			}
 		});
-		logger.info( `${"[MODULES]".bold} Module load complete` );
+		logger.info({type: "SERVER MDULES", message: `Module load complete`});
 	},
 
 	returnModule: function( moduleName ) {
 		if( self.loadedModules.hasOwnProperty( moduleName ) ) {
 			return self.loadedModules[ moduleName ];
 		} else {
-			logger.warn( `Tried to call module ${moduleName} which does not exist` );
+			logger.warn({
+				type:    "SERVER MDULES",
+				message: `Tried to call module ${moduleName} which does not exist`,
+			});
 		}
 	},
 
@@ -177,7 +210,10 @@ const moduleHandler = {
 
 			return self.moduleFunctions[ moduleName ].hasOwnProperty( functionName );
 		} else {
-			logger.warn( `Tried to call module ${moduleName} which does not exist` );
+			logger.warn({
+				type:    "SERVER MDULES",
+				message: `Tried to call module ${moduleName} which does not exist`,
+			});
 		}
 	},
 
