@@ -1,7 +1,7 @@
 const config  = require( "../.config/config.js" ).Config;
 const sqlite  = require( "better-sqlite3" );
 const path    = require( "path" );
-const db_path = path.join( __dirname, config.bot_config.db_file );
+const db_path = path.join( __dirname, "..", ".config", "bot.db" );
 
 const db = new sqlite( db_path, {
 	fileMustExist: true,
@@ -14,31 +14,11 @@ db.pragma( "synchronous = FULL" );
 let self;
 
 const database = {
-	server_config: config.bot_config.irc_server,
+	server_config: config.bot_config,
 	server_alias:  {},
 
-	init: function() {
-		const stmt = db.prepare( "SELECT * FROM servers WHERE enabled = 'true'" );
-		let key, row, server_id, value;
-
-		for( row of stmt.iterate() ) {
-			const alias     = row.alias;
-			const server_id = row.server_id;
-
-			self.server_alias[ server_id ] = alias;
-
-			const network                        = alias;
-			self.server_config[ alias ]          = row;
-			self.server_config[ alias ].settings = {};
-			let server_config;
-
-			const settings = db.prepare( "SELECT setting, value FROM server_settings WHERE server_id = " +
-					server_id );
-			for( const inner of settings.iterate() ) {
-				const val                                             = JSON.parse( inner.value );
-				self.server_config[ alias ].settings[ inner.setting ] = val;
-			}
-		}
+	init: async function() {
+		//	console.log( self.server_config );
 
 		return true;
 	},
@@ -47,7 +27,33 @@ const database = {
 		const network =
 			typeof server === "number" ? self.server_alias[ server ] : server;
 
-		return self.server_config[ network ];
+		const stmt = db.prepare( "SELECT * FROM servers WHERE server_id = ?" );
+		const row  = stmt.get( server );
+
+		return row;
+	},
+
+	getServerSettings: function( server ) {
+		if( typeof server !== "number" ) {
+			return false;
+		}
+
+		let setting, value;
+		const settings = {};
+		const stmt     = db.prepare( "SELECT * FROM server_settings WHERE server_id = ?" );
+		const row      = stmt.all( server );
+
+		for( const num in row ) {
+			setting = row[ num ];
+			try {
+				value                            = setting.value;
+				settings[ setting[ "setting" ] ] = JSON.parse( value );
+			} catch( e ) {
+				console.log( e );
+			}
+		}
+
+		return settings;
 	},
 
 	updateUsers: function( server ) {
@@ -64,8 +70,8 @@ const database = {
 	},
 
 	getUserId: function( nick ) {
-		const stmt = db.prepare( "SELECT user_id FROM users WHERE nickname = ?" );
-		const row  = stmt.get( nick );
+		const stmt = db.prepare( "SELECT user_id FROM users WHERE LOWER(nickname) = ?" );
+		const row  = stmt.get( nick.toLowerCase() );
 
 		return row.user_id;
 	},
@@ -81,7 +87,7 @@ const database = {
 		const stmt = db.prepare( "SELECT * FROM user_settings WHERE user_id = ? AND setting = ?" );
 		const row  = stmt.get( id, setting );
 
-		return typeof row === "undefined" ? false : row;
+		return typeof row === "undefined" ? false : row.value;
 	},
 
 	insertOneRow: function( table, fields, ignore_server_id = null ) {

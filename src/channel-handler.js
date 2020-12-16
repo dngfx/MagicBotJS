@@ -76,7 +76,9 @@ const channelHandler = {
 
 			logger.info({
 				type:    "SERVER NOTICE",
-				message: `Added modes ${full_keys.join( ", " )} to ${user} on channel ${channel}`,
+				message: `Added modes ${full_keys.join( ", " ).bold} to ${
+					user.bold
+				} on channel ${channel.bold}`,
 			});
 		}
 	},
@@ -84,8 +86,8 @@ const channelHandler = {
 	getMode: function( nick, channel ) {
 		const user = Object.values( self.channels[ channel ][ nick ].modes );
 		for( const prefix in user ) {
-			if( typeof self.mode_prefix[ user[ prefix ] ] === "string" ) {
-				return self.mode_prefix[ user[ prefix ] ];
+			if( typeof self.mode_type[ user[ prefix ] ] === "string" ) {
+				return self.mode_type[ user[ prefix ] ];
 			}
 		}
 
@@ -157,7 +159,7 @@ const channelHandler = {
 		if( joinpart === "join" && typeof channels !== "string" ) {
 			logger.info({
 				type:    "SERVER NOTICE",
-				message: `Joining Channels ${channels.join( ", " )}`,
+				message: `Joining Channels ${channels.join( ", " ).bold}`,
 			});
 			self.joinChannel( channels.join( "," ) );
 
@@ -187,7 +189,7 @@ const channelHandler = {
 
 		const action = joinpart === "join" ? "joined" : "parted";
 
-		logger.info( `${event.nick} ${action} ${event.channel}` );
+		logger.info( `${event.nick.bold} ${action} ${event.channel.bold}` );
 	},
 
 	channelUserList: function( command, event ) {
@@ -209,6 +211,8 @@ const channelHandler = {
 				ident: cur_user.ident,
 				modes: cur_user.modes,
 			};
+
+			core.userHandler.addUser( cur_user );
 		}
 	},
 
@@ -225,7 +229,7 @@ const channelHandler = {
 
 	addUserToDb: function( user ) {
 		const network    = self.client.network.name;
-		const network_id = core.db.server_config[ network ].server_id;
+		const network_id = core.db.server_config.server_id;
 
 		core.db.insertOneRow( "users", {
 			server_id: network_id,
@@ -259,7 +263,7 @@ const channelHandler = {
 			default:
 				logger.debug({
 					type:    "SERVER NOTICE",
-					message: `Unknown command ${command}`,
+					message: `Unknown command ${command.bold}`,
 				});
 				break;
 		}
@@ -271,7 +275,7 @@ const channelHandler = {
 		} else {
 			logger.error({
 				type:    "SERVER NOTICE",
-				message: `Could not find channel ${channel}`,
+				message: `Could not find channel ${channel.bold}`,
 			});
 		}
 	},

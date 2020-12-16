@@ -16,7 +16,7 @@ const coreHandler = {
 	init_complete:  null,
 	api_keys:       null,
 
-	init: function() {
+	init: async function() {
 		if( self.init_complete !== null ) {
 			return;
 		}
@@ -31,6 +31,10 @@ const coreHandler = {
 		self.api_keys       = ini.parse( fs.readFileSync( path.join( __dirname, "..", ".config", "api.ini" ), "utf-8" ) ).bot;
 
 		self.init_complete = true;
+
+		await self.db.init();
+
+		return true;
 	},
 
 	assignClient: function( client ) {

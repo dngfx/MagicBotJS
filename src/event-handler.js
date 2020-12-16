@@ -19,6 +19,7 @@ const eventReactor = {
 		const target     = event.target;
 		const nick       = event.nick;
 		const mode       = event.modes;
+		const ournick    = client.user.nick;
 
 		const raw_modes        = event.raw_modes;
 		const raw_params       = event.raw_params;
@@ -30,7 +31,7 @@ const eventReactor = {
 
 		if( real_from !== real_nick ) {
 			logger.info({
-				title:   `[USER ${real_nick}]`,
+				title:   `[SERVER NOTICE]`,
 				message: `${real_nick} sets type: ${raw_modes} on ${real_from}`,
 			});
 
@@ -66,7 +67,8 @@ const eventReactor = {
 
 	privateMessage: async function( client, message ) {
 		const is_channel    = message.target[ 0 ] === "#";
-		const is_private    = message.target === client.user.nick;
+		const is_private    = !is_channel;
+		const ournick       = client.user.nick;
 		const target        = is_channel === true ? message.target : message.nick;
 		const maybe_command =
 			message.message[ 0 ] === cmdPrefix || is_private === true;
@@ -79,7 +81,7 @@ const eventReactor = {
 		}
 
 		if( is_private ) {
-			type = `USER: ${message.nick}`;
+			type = `${client.user.nick} <- ${message.nick}`;
 		}
 
 		let parsedMessage = message.message;

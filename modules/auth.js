@@ -10,7 +10,7 @@ const auth = {
 
 	register: function( str, event, prefix = true ) {
 		if( event.target[ 0 ] === "#" ) {
-			core.messageHandler.sendCommandMessage( event.target, "This command can only be used in a private message", prefix, self.name );
+			core.messageHandler.sendCommandMessage( event.target, "This command can only be used in a private message", prefix, self.name, true );
 
 			return;
 		}
@@ -26,7 +26,7 @@ const auth = {
 
 		const alreadyRegistered = core.db.userSettingExists( id, "password" );
 		if( alreadyRegistered === true ) {
-			core.messageHandler.sendCommandMessage( event.nick, "Account already exists", prefix, self.name );
+			core.messageHandler.sendCommandMessage( event.nick, "Account already exists", prefix, self.name, true );
 
 			return;
 		}
@@ -45,7 +45,7 @@ const auth = {
 
 	identify: function( str, event, prefix = true ) {
 		if( event.target[ 0 ] === "#" ) {
-			core.messageHandler.sendCommandMessage( event.target, "This command can only be used in a private message", prefix, self.name );
+			core.messageHandler.sendCommandMessage( event.target, "This command can only be used in a private message", prefix, self.name, true );
 
 			return;
 		}
@@ -60,7 +60,7 @@ const auth = {
 			user     = event.nick;
 			password = parts[ 1 ];
 		} else {
-			core.messageHandler.sendCommandMessage( event.nick, `You must identify using the format "identify <password> or identify <nick> <password>"`, prefix, self.name );
+			core.messageHandler.sendCommandMessage( event.nick, `You must identify using the format "identify <password> or identify <nick> <password>"`, prefix, self.name, true );
 
 			return;
 		}
@@ -68,7 +68,13 @@ const auth = {
 		password = crypto.createHash( "sha3-512" ).update( password ).digest( "hex" );
 		const id = core.db.getUserId( event.nick );
 
-		const correctPassword = core.db.getUserSetting( id, "password" ).value;
+		const correctPassword = core.db.getUserSetting( id, "password" );
+
+		if( typeof correctPassword === "undefined" ) {
+			core.messageHandler.sendCommandMessage( event.nick, "User does not exist", prefix, self.name, true );
+
+			return;
+		}
 
 		if( correctPassword === password ) {
 			core.userHandler.users[ event.nick ].authenticated         = true;
@@ -78,7 +84,7 @@ const auth = {
 
 			return;
 		} else {
-			core.messageHandler.sendCommandMessage( event.nick, "Incorrect password", prefix, self.name );
+			core.messageHandler.sendCommandMessage( event.nick, "Incorrect password", prefix, self.name, true );
 
 			return;
 		}

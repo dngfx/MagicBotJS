@@ -58,30 +58,21 @@ const userHandler = {
 	},
 
 	checkPermission: function( user, permission ) {
-		if( self.users[ user ].authenticated === false ) {
+		if( !self.users[ user ].authenticated ) {
 			return false;
 		}
 
 		const account = self.users[ user ].authenticated_account;
 		const id      = core.db.getUserId( account );
 
-		const permissions = core.db.getUserSetting( id, "permissions" );
-
+		let permissions = core.db.getUserSetting( id, "permissions" );
 		if( permissions === false ) {
 			return false;
 		}
 
-		if(
-			typeof permissions.value === "string" &&
-			( permissions.value === "*" || permissions.value === permission )
-		) {
-			return true;
-		}
+		permissions = JSON.parse( permissions );
 
-		if(
-			typeof permissions.value === "object" &&
-			typeof permissions.value[ permission ] !== "string"
-		) {
+		if( permissions.includes( "*" ) || permissions.includes( permission ) ) {
 			return true;
 		}
 	},

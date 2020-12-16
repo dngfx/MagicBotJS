@@ -3,10 +3,8 @@ const irc      = require( "irc-framework" );
 const config   = require( "./.config/config.js" ).Config;
 const Database = require( "./src/db.js" ).Database;
 Database.init();
-const dbConfig = Database.getConfig( 1 );
 
-const serverConfig = config.bot_config.irc_server;
-const core         = require( "./src/core-handler.js" ).coreHandler;
+const core = require( "./src/core-handler.js" ).coreHandler;
 core.init();
 
 const eventHandler   = core.eventHandler;
@@ -16,6 +14,12 @@ const moduleHandler  = core.moduleHandler;
 const channelHandler = core.channelHandler;
 const userHandler    = core.userHandler;
 const utils          = core.utils;
+
+const dbConfig        = core.db.getConfig( 1 );
+dbConfig.settings     = core.db.getServerSettings( 1 );
+core.db.server_config = dbConfig;
+
+//console.log( dbConfig );
 
 const logger = require( "./src/logging.js" ).Logger;
 

@@ -18,7 +18,7 @@ const messageHandler = {
 		self._bot   = bot;
 	},
 
-	generatetype: function( prefix, error = false ) {
+	generatePrefix: function( prefix, error = false ) {
 		const text = !error
 			? `[${prefix.irc.green.bold()}] `
 			: `[${prefix.irc.red.bold()}] `;
@@ -26,14 +26,40 @@ const messageHandler = {
 		return text;
 	},
 
-	sendMessage: function( target, message ) {
+	sendMessage: async function(
+		target,
+		message,
+		prefix = false,
+		prefixText = "",
+		error = false
+	) {
+		let user_prefix  = "";
+		let target_str   = target;
+		const channel    = target;
 		const is_channel = target[ 0 ] === "#";
-		const channel_id = is_channel ? `[${target}] ` : "";
+		const channel_id = is_channel === true ? `[${channel}] ` : "";
+
+		const command =
+			prefix !== false ? self.generatePrefix( prefixText, error ) : "";
+
+		if( prefix !== false ) {
+			prefixText = !error ? prefixText.bold.green : prefixText.bold.red;
+			prefixText = `[${prefixText}] `;
+		}
+
+		if( is_channel === true ) {
+			user_prefix = await core.channelHandler.getMode( self.client.user.nick, channel );
+		} else {
+			target_str = `${self.client.user.nick} -> ${target}`;
+		}
 
 		self.client.say( target, message );
-		logger.info( `${channel_id.bold}<${
-			self.client.user.nick
-		}> ${message.irc.stripColors()}` );
+		logger.info({
+			type:    target_str,
+			message: `<${user_prefix}${
+				self.client.user.nick
+			}> ${prefixText}${message.irc.stripColors()}`,
+		});
 	},
 
 	sendAction: function( target, message ) {
@@ -56,17 +82,23 @@ const messageHandler = {
 		}
 
 		let user_prefix  = "";
+		let target_str   = target;
 		const channel    = target;
 		const is_channel = target[ 0 ] === "#";
 		const channel_id = is_channel === true ? `[${channel}] ` : "";
 		if( is_channel === true ) {
 			user_prefix = await core.channelHandler.getMode( self.client.user.nick, channel );
+		} else {
+			target_str = `${self.client.user.nick} -> ${target}`;
 		}
 
 		self.client.say( target, command + message );
-		logger.info( `${channel_id.bold}<${user_prefix}${
-			self.client.user.nick
-		}> ${prefixText}${message.irc.stripColors()}` );
+		logger.info({
+			type:    target_str,
+			message: `<${user_prefix}${
+				self.client.user.nick
+			}> ${prefixText}${message.irc.stripColors()}`,
+		});
 	},
 };
 
