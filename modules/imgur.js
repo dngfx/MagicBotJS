@@ -40,8 +40,7 @@ const imgur = {
 		if( image !== null ) {
 			const parsed_image = image[ 1 ];
 
-			const data = await self.fetchImage( parsed_image );
-			console.log( data );
+			const data   = await self.fetchImage( parsed_image );
 			let fileName = data.url.split( "/" )[ data.url.split( "/" ).length - 1 ];
 
 			if( image[ 0 ].match( ".webp" ) ) {
