@@ -146,13 +146,11 @@ const channelHandler = {
 	},
 
 	onJoinPart: function( event, joinpart, channels = null ) {
-		if( self.client.user.nick === event.nick ) {
-			if( channels === null ) {
-				if( typeof event.channel === "string" ) {
-					channels = event.channel;
-				} else {
-					return;
-				}
+		if( channels === null ) {
+			if( typeof event.channel === "string" ) {
+				channels = event.channel;
+			} else {
+				return;
 			}
 		}
 
@@ -172,11 +170,19 @@ const channelHandler = {
 					self.channels[ channels ] = {};
 				}
 
+				const message =
+					self.client.user.nick === event.nick
+						? `Joining Channel ${channel.bold}`
+						: `${event.nick.bold} joined ${channel.bold}`;
+
 				logger.info({
 					type:    "SERVER NOTICE",
-					message: `Joining Channel ${channel.bold}`,
+					message: message,
 				});
-				self.joinChannel( channel );
+
+				if( self.client.user.nick === event.nick ) {
+					self.joinChannel( channel );
+				}
 
 				return;
 			}
@@ -184,12 +190,17 @@ const channelHandler = {
 
 		const channel = channels;
 
-		delete self.channels[ channel ];
-		self.partChannel( channel );
+		if( self.client.user.nick === event.nick ) {
+			delete self.channels[ channel ];
+			self.partChannel( channel );
+		}
 
 		const action = joinpart === "join" ? "joined" : "parted";
 
-		logger.info( `${event.nick.bold} ${action} ${event.channel.bold}` );
+		logger.info({
+			type:    "SERVER NOTICE",
+			message: `${event.nick.bold} ${action} ${event.channel.bold}`,
+		});
 	},
 
 	channelUserList: function( command, event ) {
