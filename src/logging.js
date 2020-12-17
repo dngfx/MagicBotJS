@@ -2,6 +2,7 @@
 const {createLogger, format, transports, addColors} = require( "winston" );
 const timestampColor                                = require( "winston-timestamp-colorize" );
 const config                                        = require( "../.config/config.js" ).Config;
+const lang                                          = require( "./lang.js" ).lang;
 const core                                          = require( "./core-handler.js" ).coreHandler;
 const colors                                        = require( "colors" );
 
@@ -36,10 +37,9 @@ const myFormat = format.combine(
 	format.colorize(),
 	format.align(),
 	format.printf( ( info ) =>
-		`[${info.timestamp}] [${config.level.server_name.bold.magenta}] [${
-			info.level
-		}]: ${`[${info.type}]:`.bold.padEnd( 20 )} ${core.utils.convert_irc_to_console( info.message )}` )
-	//format.printf( ( info ) => "" )
+		`[${info.timestamp}] [${
+			config.level.server_name.bold.magenta
+		}] [${info.level.padEnd( 25 )}]: [${info.type.bold.padEnd( 25 )}]: ${core.utils.convert_irc_to_console( info.message )}` )
 );
 
 const logger = createLogger({

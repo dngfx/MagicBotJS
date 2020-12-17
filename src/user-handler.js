@@ -1,6 +1,7 @@
 const config = require( "../.config/config.js" ).Config;
 const logger = require( "./logging.js" ).Logger;
 const colors = require( "colors" );
+const lang   = require( "./lang.js" ).lang;
 
 const core = require( "./core-handler.js" ).coreHandler;
 
@@ -86,7 +87,10 @@ const userHandler = {
 			delete self.users[ old_nick ];
 		}
 
-		logger.info( `User ${old_nick.bold} changed nick to ${new_nick.bold}` );
+		logger.info({
+			type:    lang.SEVENT,
+			message: `User ${old_nick.bold} changed nick to ${new_nick.bold}`,
+		});
 	},
 
 	// should only be called internally, so there should always be a result

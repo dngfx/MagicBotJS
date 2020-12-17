@@ -1,6 +1,7 @@
 const config = require( "../.config/config.js" ).Config;
 const colors = require( "colors" );
 const logger = require( "./logging.js" ).Logger;
+const lang   = require( "./lang.js" ).lang;
 
 const core = require( "./core-handler.js" ).coreHandler;
 
@@ -45,7 +46,7 @@ const serverHandler = {
 		self.servers[ network ].caps = server_options;
 		delete self.caps[ network ];
 		logger.debug({
-			type:    "SERVER NOTICE",
+			type:    lang.SNOTICE,
 			message: `Added ${network.bold} to the server pool`,
 		});
 	},
@@ -55,7 +56,7 @@ const serverHandler = {
 		self.myaccount[ event.account ] = event;
 
 		logger.info({
-			type:    "SERVER EVENT",
+			type:    lang.SEVENT,
 			message: `Account ${event.account.bold} recognised. ${event.nick.bold}!${event.ident.bold}@${event.hostname.bold}`,
 		});
 	},
@@ -65,7 +66,7 @@ const serverHandler = {
 		self.caps[ self.config.level.server_name ]      = {};
 		self.caps[ self.config.level.server_name ].caps = caps;
 		logger.info({
-			type:    "SERVER EVENT",
+			type:    lang.SEVENT,
 			message: `Added ${self.config.level.server_name.bold} to the server pool`,
 		});
 	},
@@ -102,7 +103,7 @@ const serverHandler = {
 
 			case "loggedin":
 				logger.info({
-					type:    "SERVER NOTICE",
+					type:    lang.SNOTICE,
 					message: `Now logging in. Nick: ${event.nick} Account: ${event.account}`,
 				});
 				break;
@@ -121,7 +122,7 @@ const serverHandler = {
 
 			default:
 				console.error({
-					type:    "SERVER NOTICE",
+					type:    lang.SNOTICE,
 					message: `No handler for ${type}`,
 				});
 				break;
@@ -157,19 +158,19 @@ const serverHandler = {
 
 		self.server_notices[ network ][ message ] = true;
 
-		logger.info({type: "SERVER NOTICE", message: message});
+		logger.info({type: lang.SNOTICE, message: message});
 	},
 
 	unknown: function( client, info, command ) {
 		if( command === "unknown command" ) {
 			logger.error({
-				type:    "SERVER NOTICE",
+				type:    lang.SNOTICE,
 				message: `Unknown command: ${JSON.stringify( info.command )}`,
 			});
 			console.log( command, info );
 		} else {
 			logger.warn({
-				type:    "SERVER EVENT",
+				type:    lang.SEVENT,
 				message: ` Unknown command: ${command}`,
 			});
 			console.log( "--- " + command + " START ---" );

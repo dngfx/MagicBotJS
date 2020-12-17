@@ -1,6 +1,7 @@
 const config    = require( "../.config/config.js" ).Config;
 const cmdPrefix = config.bot_config.irc_server.command_prefix;
 const logger    = require( "./logging.js" ).Logger;
+const lang      = require( "./lang.js" ).lang;
 const core      = require( "./core-handler.js" ).coreHandler;
 const colors    = require( "colors" );
 
@@ -31,7 +32,7 @@ const eventReactor = {
 
 		if( real_from !== real_nick ) {
 			logger.info({
-				title:   `[SERVER NOTICE]`,
+				title:   lang.SNOTICE,
 				message: `${real_nick} sets type: ${raw_modes} on ${real_from}`,
 			});
 
@@ -56,7 +57,10 @@ const eventReactor = {
 	},
 
 	pong: function( client, event ) {
-		logger.debug( "PONG " + event.message );
+		logger.debug({
+			type:    lang.SEVENT,
+			message: "PONG " + event.message,
+		});
 	},
 
 	message: function( client, message ) {
@@ -179,13 +183,13 @@ const eventReactor = {
 
 		if( command === "unknown command" ) {
 			logger.info({
-				type:    "EVENT",
+				type:    lang.SEVENT,
 				message: `Nonsense command: ${JSON.stringify( info )}`,
 			});
 			console.log( command, info );
 		} else {
 			logger.warn({
-				type:    "EVENT",
+				type:    lang.SEVENT,
 				message: `Unknown command: ${command}`,
 			});
 			console.log( "--- " + command + " START ---" );
@@ -273,7 +277,7 @@ const eventHandler = {
 			case "topic":
 			case "topicsetby":
 				logger.debug({
-					type:    "[EVENT]",
+					type:    lang.SEVENT,
 					message: `Handling client command ${command}`,
 				});
 				core.channelHandler.handleCommand( command, event, client, next );

@@ -1,6 +1,7 @@
 const fs   = require( "fs" );
 const path = require( "path" );
 const ini  = require( "ini" );
+const lang = require( "./lang.js" ).lang;
 let self;
 
 const coreHandler = {

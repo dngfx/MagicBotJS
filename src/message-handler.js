@@ -1,5 +1,6 @@
 const config = require( "../.config/config.js" ).Config;
 const logger = require( "./logging.js" ).Logger;
+const lang   = require( "./lang.js" ).lang;
 const color  = require( "irc-colors" ).global();
 const colors = require( "colors" );
 

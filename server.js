@@ -1,6 +1,7 @@
 const colors   = require( "colors" );
 const irc      = require( "irc-framework" );
 const config   = require( "./.config/config.js" ).Config;
+const lang     = require( "./src/lang.js" ).lang;
 const Database = require( "./src/db.js" ).Database;
 Database.init();
 
@@ -15,18 +16,35 @@ const channelHandler = core.channelHandler;
 const userHandler    = core.userHandler;
 const utils          = core.utils;
 
-const dbConfig        = core.db.getConfig( 1 );
-dbConfig.settings     = core.db.getServerSettings( 1 );
+const defaultSettings = {
+	"client-version":   "MagicBotJS v1.0.0",
+	"log-level":        "info",
+	"sasl":             null,
+	"chghost":          false,
+	"debug":            false,
+	"echo-message":     false,
+	"default-channels": false,
+	"ssl-verify":       false,
+};
+
+const dbConfig       = core.db.getConfig( 1 );
+const serverSettings = core.db.getServerSettings( 1 );
+
+dbConfig.settings = defaultSettings;
+
+console.log( dbConfig );
+for( const setting in serverSettings ) {
+	dbConfig.settings[ setting ] = serverSettings[ setting ];
+}
+console.log( dbConfig );
+
 core.db.server_config = dbConfig;
 
 //console.log( dbConfig );
 
 const logger = require( "./src/logging.js" ).Logger;
 
-const channels =
-	dbConfig.settings[ "default-channels" ] === undefined
-		? ""
-		: dbConfig.settings[ "default-channels" ];
+const channels = dbConfig.settings[ "default-channels" ];
 
 channelHandler.default_channels = channels;
 
@@ -40,7 +58,7 @@ function getSasl( dbConfig ) {
 	};
 }
 
-const sasl = dbConfig.settings.sasl !== undefined ? getSasl( dbConfig ) : null;
+const sasl = dbConfig.settings.sasl !== null ? getSasl( dbConfig ) : null;
 const bot  = new irc.Client({
 	host:               dbConfig.hostname,
 	nick:               dbConfig.nickname,
@@ -62,15 +80,15 @@ const bot  = new irc.Client({
 //bot.request_extra_caps = [ "userhost-in-names" ];
 
 // eslint-disable-next-line no-constant-condition
-if( false ) {
+if( dbConfig.settings.debug === true ) {
 	bot.on( "debug", ( msg ) => {
 		msg = JSON.stringify( msg );
-		logger.debug( `${"[BOT DEBUG]".bold} => ${msg}` );
+		logger.debug({type: lang.DEBUGMSG, message: msg});
 	});
 
 	bot.on( "raw", ( msg ) => {
 		msg = JSON.stringify( msg );
-		logger.verbose( `${"[BOT RAW]".bold} => ${msg}` );
+		logger.debug({type: lang.RAWMSG, message: msg});
 	});
 }
 

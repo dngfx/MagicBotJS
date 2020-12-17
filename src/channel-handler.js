@@ -1,6 +1,7 @@
 const config    = require( "../.config/config.js" ).Config;
 const cmdPrefix = config.bot_config.irc_server.command_prefix;
 const logger    = require( "./logging.js" ).Logger;
+const lang      = require( "./lang.js" ).lang;
 const colors    = require( "colors" );
 
 const core = require( "./core-handler.js" ).coreHandler;
@@ -75,7 +76,7 @@ const channelHandler = {
 			}
 
 			logger.info({
-				type:    "SERVER NOTICE",
+				type:    lang.SNOTICE,
 				message: `Added modes ${full_keys.join( ", " ).bold} to ${
 					user.bold
 				} on channel ${channel.bold}`,
@@ -123,7 +124,7 @@ const channelHandler = {
 	partChannel: function( channel ) {
 		self.client.part( channel );
 		logger.info({
-			type:    "SERVER NOTICE",
+			type:    lang.SNOTICE,
 			message: `Parting Channel ${channel.bold}`,
 		});
 	},
@@ -133,14 +134,14 @@ const channelHandler = {
 		self.channels[ info.channel ].topic = info.topic;
 
 		logger.info({
-			type:    "SERVER NOTICE",
+			type:    lang.SNOTICE,
 			message: `Topic for ${info.channel.bold} is ${info.topic.bold}`,
 		});
 	},
 
 	topicSetBy: function( info ) {
 		logger.info({
-			type:    "SERVER NOTICE",
+			type:    lang.SNOTICE,
 			message: `Topic for ${info.channel.bold} was set by ${info.nick.bold}`,
 		});
 	},
@@ -156,7 +157,7 @@ const channelHandler = {
 
 		if( joinpart === "join" && typeof channels !== "string" ) {
 			logger.info({
-				type:    "SERVER NOTICE",
+				type:    lang.SNOTICE,
 				message: `Joining Channels ${channels.join( ", " ).bold}`,
 			});
 			self.joinChannel( channels.join( "," ) );
@@ -176,7 +177,7 @@ const channelHandler = {
 						: `${event.nick.bold} joined ${channel.bold}`;
 
 				logger.info({
-					type:    "SERVER NOTICE",
+					type:    lang.SNOTICE,
 					message: message,
 				});
 
@@ -202,7 +203,7 @@ const channelHandler = {
 		const action = joinpart === "join" ? "joined" : "parted";
 
 		logger.info({
-			type:    "SERVER NOTICE",
+			type:    lang.SNOTICE,
 			message: `${event.nick.bold} ${action} ${event.channel.bold}`,
 		});
 	},
@@ -214,7 +215,7 @@ const channelHandler = {
 	removeFromChannel( channel, nick ) {
 		if( self.channels[ channel ].hasOwnProperty( nick ) ) {
 			logger.debug({
-				title:   "SERVER NOTICE",
+				title:   lang.SNOTICE,
 				message: `Removing ${nick} from ${channel}`,
 			});
 			delete self.channels[ channel ][ nick ];
@@ -271,7 +272,7 @@ const channelHandler = {
 			return;
 		}
 
-		logger.info({type: "SERVER NOTICE", message: event.message});
+		logger.info({type: lang.SNOTICE, message: event.message});
 	},
 
 	handleCommand: function( command, event, client, next ) {
@@ -291,7 +292,7 @@ const channelHandler = {
 
 			default:
 				logger.debug({
-					type:    "SERVER NOTICE",
+					type:    lang.SNOTICE,
 					message: `Unknown command ${command.bold}`,
 				});
 				break;
@@ -303,7 +304,7 @@ const channelHandler = {
 			return self.channels[ channel ].topic;
 		} else {
 			logger.error({
-				type:    "SERVER NOTICE",
+				type:    lang.SNOTICE,
 				message: `Could not find channel ${channel.bold}`,
 			});
 		}
