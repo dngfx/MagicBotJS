@@ -182,6 +182,8 @@ const channelHandler = {
 
 				if( self.client.user.nick === event.nick ) {
 					self.joinChannel( channel );
+				} else {
+					self.refreshChannelUsers( channel );
 				}
 
 				return;
@@ -193,6 +195,8 @@ const channelHandler = {
 		if( self.client.user.nick === event.nick ) {
 			delete self.channels[ channel ];
 			self.partChannel( channel );
+		} else {
+			self.removeFromChannel( channel, event.nick );
 		}
 
 		const action = joinpart === "join" ? "joined" : "parted";
@@ -201,6 +205,20 @@ const channelHandler = {
 			type:    "SERVER NOTICE",
 			message: `${event.nick.bold} ${action} ${event.channel.bold}`,
 		});
+	},
+
+	refreshChannelUsers( channel ) {
+		self.client.raw( "NAMES " + channel );
+	},
+
+	removeFromChannel( channel, nick ) {
+		if( self.channels[ channel ].hasOwnProperty( nick ) ) {
+			logger.debug({
+				title:   "SERVER NOTICE",
+				message: `Removing ${nick} from ${channel}`,
+			});
+			delete self.channels[ channel ][ nick ];
+		}
 	},
 
 	channelUserList: function( command, event ) {

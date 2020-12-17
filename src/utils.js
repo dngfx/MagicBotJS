@@ -110,6 +110,7 @@ const Utils = {
 			{value: 1e3, symbol: "K"},
 			{value: 1e6, symbol: "M"},
 			{value: 1e9, symbol: "B"},
+			{value: 1e9, symbol: "T"},
 		];
 
 		const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
