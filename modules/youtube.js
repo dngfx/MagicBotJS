@@ -62,17 +62,16 @@ const youtube = {
 				const secs   = duration[ 2 ];
 
 				if( hours !== 0 ) {
-					duration = `${hours}h${mins}m${secs}s`;
+					duration = `${hours}:${mins}:${secs}`;
 				} else {
-					duration = `${mins}m${secs}s`;
+					duration = `${mins}:${secs}`;
 				}
-				const nf = new Intl.NumberFormat();
 
 				const video_info = {
 					title:    result.info.title,
 					posted:   core.utils.formatToStandardTime( result.info.publishedAt ),
 					poster:   result.info.channelTitle,
-					views:    nf.format( result.stats.viewCount ),
+					views:    core.utils.fuzzFormatNumber( result.stats.viewCount, 1 ),
 					likes:    result.stats.likeCount + "↑",
 					dislikes: "↓" + result.stats.dislikeCount,
 					duration: duration,

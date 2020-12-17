@@ -17,12 +17,26 @@ const Utils = {
 		return moment().format( "X.SSSSSS" );
 	},
 
-	formatToStandardTime( time ) {
-		return moment( time ).format( "Do MMM YY [at] h:mma" );
+	parseUnixTime: function( time ) {
+		return moment.unix( time );
 	},
 
-	formatToFancyTime( time, str = "Do MMM YY [at] h:mma" ) {
-		return moment( time ).format( str );
+	parseTime: function( time ) {
+		return moment( time );
+	},
+
+	formatToStandardTime( time ) {
+		if( Number.isInteger( time ) ) {
+			time = self.parseUnixTime( time );
+		} else {
+			time = self.parseTime( time );
+		}
+
+		return self.formatToFancyTime( time );
+	},
+
+	formatToFancyTime( time, str = "Do MMM, YYYY [at] HH:mm" ) {
+		return time.format( str );
 	},
 
 	prevent_highlight: function( user ) {
@@ -82,6 +96,33 @@ const Utils = {
 		const i = Math.floor( Math.log( size ) / Math.log( k ) );
 
 		return parseFloat( ( size / Math.pow( k, i ) ).toFixed( decimal ) ) + sizes[ i ];
+	},
+
+	commaFormatNumber: function( num ) {
+		const nf = new Intl.NumberFormat();
+
+		return nf.format( num );
+	},
+
+	fuzzFormatNumber: function( num, digits = 1 ) {
+		const si = [
+			{value: 1, symbol: ""},
+			{value: 1e3, symbol: "K"},
+			{value: 1e6, symbol: "M"},
+			{value: 1e9, symbol: "B"},
+		];
+
+		const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+		let i;
+		for( i = si.length - 1; i > 0; i-- ) {
+			if( num >= si[ i ].value ) {
+				break;
+			}
+		}
+
+		return (
+			( num / si[ i ].value ).toFixed( digits ).replace( rx, "$1" ) + si[ i ].symbol
+		);
 	},
 };
 

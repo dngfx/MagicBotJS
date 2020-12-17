@@ -35,41 +35,29 @@ const imgur = {
 		const image   = self.regex_image.exec( msg );
 		const album   = self.regex_image.exec( msg );
 		const gallery = self.regex_image.exec( msg );
+		let append    = "";
 
 		if( image !== null ) {
 			const parsed_image = image[ 1 ];
 
-			const data   = await self.fetchImage( parsed_image );
+			const data = await self.fetchImage( parsed_image );
+			console.log( data );
 			let fileName = data.url.split( "/" )[ data.url.split( "/" ).length - 1 ];
+
+			if( image[ 0 ].match( ".webp" ) ) {
+				fileName = image[ 0 ].split( "/" )[ image[ 0 ].split( "/" ).length - 1 ];
+				append   = `- Source: ${data.url}`.irc.italic();
+			}
 
 			fileName = core.utils.prevent_highlight_filename( fileName );
 
 			const message = `${data.nsfw}${fileName.irc.bold()} - ${
 				data.title
-			}A ${data.mime.irc.bold()} image, ${data.size.irc.bold()}, ${
-				data.width
-			}x${data.height}, with ${data.views.irc.bold()} view${
+			}A ${data.mime.irc.bold()} image, ${data.size.irc.bold()}, ${data.width.irc.bold()}x${data.height.irc.bold()}, ${data.views.irc.bold()} view${
 				data.views_plural
-			}, posted ${data.uploaded.irc.bold()}`;
+			}, uploaded ${data.uploaded}${append}`;
 
 			core.messageHandler.sendCommandMessage( target, message, prefix, self.name );
-
-			/**
-			 *
-			 * IMAGE_FORMAT = "%s%s%sA %s image, %s, %sx%s, with %s view%s, posted %s%s"
-			 * output = IMAGE_FORMAT % (
-            nsfw,
-            title,
-            bracket_left,
-            utils.irc.bold(mime),
-            utils.irc.bold(fsize),
-            width,
-            height,
-            utils.irc.bold(views),
-            views_plural,
-            utils.irc.bold(time),
-            bracket_right
-        ) */
 		}
 	},
 
@@ -79,19 +67,21 @@ const imgur = {
 			if( res.status !== 200 ) {
 				return false;
 			}
+			const dateFormat = `${"Do MMM, YYYY".irc.bold()} [at] ${"HH:mm".irc.bold()} [UTC]`;
+			const parsedTime = core.utils.formatToFancyTime( core.utils.parseUnixTime( img.datetime ), dateFormat );
 
 			const data = {
 				url:          img.link,
 				nsfw:         img.nsfw === true ? "[NSFW]".irc.red.bold() : "",
 				title:        img.title === null ? "" : `(${img.title}) `,
 				mime:         img.type.split( "/" )[ 1 ],
-				views:        img.views.toString(),
+				views:        core.utils.fuzzFormatNumber( img.views, 1 ),
 				views_plural: img.views > 1 ? "s" : "",
 				width:        img.width.toString(),
 				height:       img.height.toString(),
 				size:         core.utils.sizeConvert( img.size, 2 ),
 				bw:           core.utils.sizeConvert( img.bandwidth, 0 ),
-				uploaded:     core.utils.formatToStandardTime( img.datetime ),
+				uploaded:     parsedTime,
 			};
 
 			return data;
