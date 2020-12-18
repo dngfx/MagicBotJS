@@ -7,9 +7,10 @@ const colors    = require( "colors" );
 
 let self;
 const eventReactor = {
-	config: null,
-	client: null,
-	server: null,
+	config:       null,
+	client:       null,
+	server:       null,
+	firedCommand: false,
 
 	mode: async function( client, event ) {
 		if( event.target[ 0 ] === "#" ) {
@@ -53,7 +54,7 @@ const eventReactor = {
 
 			modes[ user ].push( item.mode );
 		});
-		core.channelHandler.addMode( user, target, modes[ user ]);
+		core.channelHandler.addMode( user, target, modes[ user ] );
 	},
 
 	pong: function( client, event ) {
@@ -74,8 +75,7 @@ const eventReactor = {
 		const is_private    = !is_channel;
 		const ournick       = client.user.nick;
 		const target        = is_channel === true ? message.target : message.nick;
-		const maybe_command =
-			message.message[ 0 ] === cmdPrefix || is_private === true;
+		const maybe_command = message.message[ 0 ] === cmdPrefix || is_private === true;
 
 		message.time = process.hrtime.bigint();
 
@@ -95,14 +95,11 @@ const eventReactor = {
 			prefix = await core.channelHandler.getMode( message.nick, target );
 		}
 
-		core.moduleHandler.handleHook( "onmessage", client, message );
-
 		if( maybe_command && ( is_channel || is_private ) ) {
-			const cmd   = is_private
-				? message.message
-				: message.message.split( cmdPrefix )[ 1 ];
-			let args    = cmd.split( " " );
-			let cmdText = "";
+			self.firedCommand = false;
+			const cmd         = is_private ? message.message : message.message.split( cmdPrefix )[ 1 ];
+			let args          = cmd.split( " " );
+			let cmdText       = "";
 
 			if( args.length < 2 ) {
 				cmdText = cmd;
@@ -112,23 +109,28 @@ const eventReactor = {
 			}
 
 			if( core.moduleHandler.commandExists( cmdText ) ) {
-				const cmdModule = core.moduleHandler.getModuleFromCmd( cmdText );
+				const [ cmdModule, cmdName ] = core.moduleHandler.getModuleFromCmd( cmdText );
 				if( typeof cmdModule.requirePermission === "string" ) {
-					if(
-						!core.userHandler.checkPermission( message.nick, cmdModule.requirePermission )
-					) {
+					if( !core.userHandler.checkPermission( message.nick, cmdModule.requirePermission ) ) {
 						core.messageHandler.sendCommandMessage( target, `You do not have the required permissions for this command.`, true, cmdModule.name, true );
 
 						return;
 					}
 				}
 
-				cmdModule[ cmdText ]( args, message );
+				cmdModule.commands[ cmdName ].command( args, message );
+				self.firedCommand = true;
 				if( cmdModule.name === "Authentication" ) {
 					parsedMessage = `${cmdText} ********`;
 				}
 			}
 		}
+
+		if( self.firedCommand === false ) {
+			core.moduleHandler.handleHook( "onmessage", client, message );
+		}
+
+		self.firedCommand = false;
 
 		const str = `<${prefix}${message.nick}> ${parsedMessage}`;
 

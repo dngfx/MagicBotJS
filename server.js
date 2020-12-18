@@ -8,14 +8,13 @@ Database.init();
 const core = require( "./src/core-handler.js" ).coreHandler;
 core.init();
 
-const eventHandler   = core.eventHandler;
-const serverHandler  = core.serverHandler;
-const messageHandler = core.messageHandler;
-const moduleHandler  = core.moduleHandler;
-const channelHandler = core.channelHandler;
-const userHandler    = core.userHandler;
-const utils          = core.utils;
-
+const eventHandler    = core.eventHandler;
+const serverHandler   = core.serverHandler;
+const messageHandler  = core.messageHandler;
+const moduleHandler   = core.moduleHandler;
+const channelHandler  = core.channelHandler;
+const userHandler     = core.userHandler;
+const utils           = core.utils;
 const defaultSettings = {
 	"client-version":   "MagicBotJS v1.0.0",
 	"log-level":        "info",
@@ -32,18 +31,13 @@ const serverSettings = core.db.getServerSettings( 1 );
 
 dbConfig.settings = defaultSettings;
 
-console.log( dbConfig );
 for( const setting in serverSettings ) {
 	dbConfig.settings[ setting ] = serverSettings[ setting ];
 }
-console.log( dbConfig );
 
 core.db.server_config = dbConfig;
 
-//console.log( dbConfig );
-
-const logger = require( "./src/logging.js" ).Logger;
-
+const logger   = require( "./src/logging.js" ).Logger;
 const channels = dbConfig.settings[ "default-channels" ];
 
 channelHandler.default_channels = channels;
@@ -80,7 +74,7 @@ const bot  = new irc.Client({
 //bot.request_extra_caps = [ "userhost-in-names" ];
 
 // eslint-disable-next-line no-constant-condition
-if( dbConfig.settings.debug === true ) {
+if( false ) {
 	bot.on( "debug", ( msg ) => {
 		msg = JSON.stringify( msg );
 		logger.debug({type: lang.DEBUGMSG, message: msg});

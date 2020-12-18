@@ -10,6 +10,7 @@ const moduleHandler = {
 	moduleDict:      {},
 	moduleFunctions: {},
 	commandPathway:  {},
+	aliasPathways:   {},
 	modulePath:      null,
 	loadedModules:   {},
 	client:          null,
@@ -67,7 +68,7 @@ const moduleHandler = {
 				message: `Could not unload module ${moduleName.bold}, module does not exist.`,
 			});
 
-			return [ false, `Could not unload module ${moduleName}, module does not exist.`, ];
+			return [ false, `Could not unload module ${moduleName}, module does not exist.` ];
 		}
 
 		const fileName = self.loadedModules[ moduleName ].fileName;
@@ -106,7 +107,7 @@ const moduleHandler = {
 				message: `Could not load module ${moduleName.bold}, module already exists.`,
 			});
 
-			return [ false, `Could not load module ${moduleName}, module already exists.`, ];
+			return [ false, `Could not load module ${moduleName}, module already exists.` ];
 		}
 
 		self.moduleFunctions[ moduleName ] = {};
@@ -115,30 +116,71 @@ const moduleHandler = {
 		self.loadedModules[ moduleName ].fileName = file;
 		self.loadedModules[ moduleName ].client   = self.client;
 
-		if( typeof self.loadedModules[ moduleName ].hooks !== "undefined" ) {
-			logger.info({
-				type:    lang.SNOTICE,
-				message: `Found hooks for ${moduleName}: ${JSON.stringify( Object.getOwnPropertyNames( self.loadedModules[ moduleName ].hooks ) )}`,
-			});
-		}
+		const module = self.loadedModules[ moduleName ];
 
-		Object.getOwnPropertyNames( self.loadedModules[ moduleName ]).forEach( ( var_name ) => {
-			const isFunction =
-					typeof self.loadedModules[ moduleName ][ var_name ] ===
-					"function";
-			if( isFunction === true ) {
-				if( typeof self.commandPathway[ var_name ] !== "undefined" ) {
+		Object.getOwnPropertyNames( module.commands ).forEach( ( cmdName ) => {
+			const cmdObj  = module[ "commands" ][ cmdName ];
+			const cmd     = cmdObj.command;
+			const aliases = cmdObj.hasOwnProperty( "aliases" ) ? cmdObj.aliases : false;
+			const hooks   = cmdObj.hasOwnProperty( "hooks" ) ? cmdObj.hooks : false;
+
+			// Does the command already exist in another module?
+			if( typeof self.commandPathway[ cmdName ] !== "undefined" ) {
+				logger.error({
+					type:    lang.SMODULES,
+					message: `Could not redefine function ${cmdName.bold}`,
+				});
+
+				return [ false, "Could not redefine function " + cmdName ];
+			}
+
+			self.commandPathway[ cmdName ]            = cmdObj;
+			self.commandPathway[ cmdName ].moduleName = moduleName;
+
+			if( aliases !== false ) {
+				for( const alias in aliases ) {
+					const name = aliases[ alias ];
+					// Are we clashing with a function that already exists?
+					if( self.commandPathway.hasOwnProperty( name ) || self.aliasPathways.hasOwnProperty( name ) ) {
+						// Put a warning in
+						logger.warning({
+							type:    lang.SMODULES,
+							message: `Assigning alias ${name.bold} failed. Function or alias ${name.bold} already exists.`,
+						});
+
+						continue;
+					}
+
+					self.aliasPathways[ name ]            = cmdObj;
+					self.aliasPathways[ name ].moduleName = moduleName;
+					self.aliasPathways[ name ].aliasFor   = cmdName;
+					logger.debug({
+						type:    lang.SMODULES,
+						message: `Assigned alias ${name.bold} for command ${cmdName.bold}`,
+					});
+				}
+			}
+
+			if( hooks !== false ) {
+				logger.debug({
+					type:    lang.SNOTICE,
+					message: `Assigned hooks for command ${cmdName.bold}: ${JSON.stringify( hooks )}`,
+				});
+			}
+
+			/*if( isFunction === true ) {
+				if( typeof self.commandPathway[ cmdName ] !== "undefined" ) {
 					logger.error({
 						type:    lang.SMODULES,
-						message: `Could not redefine function ${var_name.bold}`,
+						message: `Could not redefine function $ cmdName.bold}`,
 					});
 
-					return [ false, "Could not redefine function " + var_name, ];
+					return [ false, "Could not redefine function " + cmdName ];
 				}
 
-				self.moduleFunctions[ moduleName ][ var_name ] = true;
-				self.commandPathway[ var_name ]                = moduleName;
-			}
+				self.moduleFunctions[ moduleName ][ cmdName ] = true;
+				self.commandPathway[ cmdName ]                = moduleName;
+			}*/
 		});
 
 		const thisModule  = self.loadedModules[ moduleName ];
@@ -148,26 +190,29 @@ const moduleHandler = {
 	},
 
 	handleHook: function( hook, client, message ) {
-		Object.getOwnPropertyNames( self.loadedModules ).forEach( ( module ) => {
+		// We hook by command now, not by entire module (hurrah)
+		Object.getOwnPropertyNames( self.commandPathway ).forEach( ( cmdName ) => {
 			logger.silly({
 				type:    lang.SMODULES,
-				message: `Checking module ${module} for hooks`,
+				message: `Checking command ${cmdName.bold} for hook ${hook.bold}`,
 			});
-			const hasHook =
-				typeof self.loadedModules[ module ].hooks !== "undefined";
-			if( !hasHook ) {
+
+			let pathway;
+			if( typeof self.commandPathway[ cmdName ] !== "undefined" ) {
+				pathway = self.commandPathway[ cmdName ];
+			} else if( typeof self.aliasPathways[ cmdName ] !== "undefined" ) {
+				pathway = self.aliasPathways[ cmdName ];
+			} else {
 				return;
 			}
 
-			if(
-				self.loadedModules[ module ].hooks.hasOwnProperty( hook ) &&
-				typeof self.loadedModules[ module ].hooks[ hook ] === "function"
-			) {
-				logger.debug({
+			if( pathway.hasOwnProperty( "hooks" ) && pathway.hooks.includes( hook ) ) {
+				logger.verbose({
 					type:    lang.SMODULES,
-					message: `Executing hook ${hook} for module ${module}`,
+					message: `Executing hook ${hook} for command ${cmdName}`,
 				});
-				self.loadedModules[ module ].hooks[ hook ]( message, client );
+
+				pathway.command( message, client );
 			}
 		});
 	},
@@ -226,11 +271,22 @@ const moduleHandler = {
 	},
 
 	commandExists: function( commandName ) {
-		return self.commandPathway.hasOwnProperty( commandName );
+		return self.commandPathway.hasOwnProperty( commandName ) || self.aliasPathways.hasOwnProperty( commandName );
 	},
 
-	getModuleFromCmd: function( commandName ) {
-		return self.loadedModules[ self.commandPathway[ commandName ] ];
+	getModuleFromCmd: function( cmdName ) {
+		let pathway;
+		let alias = cmdName;
+		if( typeof self.commandPathway[ cmdName ] !== "undefined" ) {
+			pathway = self.commandPathway[ cmdName ].moduleName;
+		} else if( typeof self.aliasPathways[ cmdName ] !== "undefined" ) {
+			pathway = self.aliasPathways[ cmdName ].moduleName;
+			alias   = self.aliasPathways[ cmdName ].aliasFor;
+		} else {
+			return;
+		}
+
+		return [ self.loadedModules[ pathway ], alias ];
 	},
 };
 

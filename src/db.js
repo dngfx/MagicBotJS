@@ -24,8 +24,7 @@ const database = {
 	},
 
 	getConfig: function( server ) {
-		const network =
-			typeof server === "number" ? self.server_alias[ server ] : server;
+		const network = typeof server === "number" ? self.server_alias[ server ] : server;
 
 		const stmt = db.prepare( "SELECT * FROM servers WHERE server_id = ?" );
 		const row  = stmt.get( server );

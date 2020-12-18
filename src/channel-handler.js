@@ -77,9 +77,7 @@ const channelHandler = {
 
 			logger.info({
 				type:    lang.SNOTICE,
-				message: `Added modes ${full_keys.join( ", " ).bold} to ${
-					user.bold
-				} on channel ${channel.bold}`,
+				message: `Added modes ${full_keys.join( ", " ).bold} to ${user.bold} on channel ${channel.bold}`,
 			});
 		}
 	},
@@ -100,9 +98,7 @@ const channelHandler = {
 			self.initChannel( channel );
 		}
 
-		if(
-			typeof self.channels[ channel ][ self.client.user.nick ] === "undefined"
-		) {
+		if( typeof self.channels[ channel ][ self.client.user.nick ] === "undefined" ) {
 			self.channels[ channel ][ self.client.user.nick ]       = {};
 			self.channels[ channel ][ self.client.user.nick ].modes = {};
 		}

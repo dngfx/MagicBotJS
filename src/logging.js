@@ -36,10 +36,16 @@ const myFormat = format.combine(
 	timestampColor({color: "green"}),
 	format.colorize(),
 	format.align(),
-	format.printf( ( info ) =>
-		`[${info.timestamp}] [${
-			config.level.server_name.bold.magenta
-		}] [${info.level.padEnd( 25 )}]: [${info.type.bold.padEnd( 25 )}]: ${core.utils.convert_irc_to_console( info.message )}` )
+	format.printf( ( info ) => {
+		let type;
+		if( typeof info.type === "undefined" ) {
+			type = "INTERNAL ERROR";
+		} else {
+			type = info.type;
+		}
+
+		return `[${info.timestamp}] [${config.level.server_name.bold.magenta}] [${info.level.padEnd( 25 )}]: [${type.bold.padEnd( 25 )}]: ${core.utils.convert_irc_to_console( info.message )}`;
+	})
 );
 
 const logger = createLogger({

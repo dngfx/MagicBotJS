@@ -55,14 +55,14 @@ const Utils = {
 
 		if( reptms.test( input ) ) {
 			const matches = reptms.exec( input );
-			if( matches[ 1 ]) {
-				hours = Number( matches[ 1 ]);
+			if( matches[ 1 ] ) {
+				hours = Number( matches[ 1 ] );
 			}
-			if( matches[ 2 ]) {
-				minutes = Number( matches[ 2 ]);
+			if( matches[ 2 ] ) {
+				minutes = Number( matches[ 2 ] );
 			}
-			if( matches[ 3 ]) {
-				seconds = Number( matches[ 3 ]);
+			if( matches[ 3 ] ) {
+				seconds = Number( matches[ 3 ] );
 			}
 		}
 
@@ -121,9 +121,7 @@ const Utils = {
 			}
 		}
 
-		return (
-			( num / si[ i ].value ).toFixed( digits ).replace( rx, "$1" ) + si[ i ].symbol
-		);
+		return ( num / si[ i ].value ).toFixed( digits ).replace( rx, "$1" ) + si[ i ].symbol;
 	},
 };
 

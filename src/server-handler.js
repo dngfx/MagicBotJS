@@ -141,8 +141,7 @@ const serverHandler = {
 			serverMessage = arr.join( " " );
 		}
 
-		const message =
-			type === "serverInfo" ? serverMessage : event.message.trim();
+		const message = type === "serverInfo" ? serverMessage : event.message.trim();
 
 		const network = self.client.network.name;
 
