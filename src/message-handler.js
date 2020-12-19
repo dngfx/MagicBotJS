@@ -3,8 +3,7 @@ const logger = require( "./logging.js" ).Logger;
 const lang   = require( "./lang.js" ).lang;
 const color  = require( "irc-colors" ).global();
 const colors = require( "colors" );
-
-const core = require( "./core-handler.js" ).coreHandler;
+const core   = require( "./core-handler.js" ).coreHandler;
 
 let self;
 
@@ -20,28 +19,19 @@ const messageHandler = {
 	},
 
 	generatePrefix: function( prefix, error = false ) {
-		const text = !error
-			? `[${prefix.irc.green.bold()}] `
-			: `[${prefix.irc.red.bold()}] `;
+		const text = !error ? `[${prefix.irc.green.bold()}] ` : `[${prefix.irc.red.bold()}] `;
 
 		return text;
 	},
 
-	sendMessage: async function(
-		target,
-		message,
-		prefix = false,
-		prefixText = "",
-		error = false
-	) {
+	sendMessage: async function( target, message, prefix = false, prefixText = "", error = false ) {
 		let user_prefix  = "";
 		let target_str   = target;
 		const channel    = target;
 		const is_channel = target[ 0 ] === "#";
 		const channel_id = is_channel === true ? `[${channel}] ` : "";
 
-		const command =
-			prefix !== false ? self.generatePrefix( prefixText, error ) : "";
+		const command = prefix !== false ? self.generatePrefix( prefixText, error ) : "";
 
 		if( prefix !== false ) {
 			prefixText = !error ? prefixText.bold.green : prefixText.bold.red;
@@ -57,9 +47,7 @@ const messageHandler = {
 		self.client.say( target, message );
 		logger.info({
 			type:    target_str,
-			message: `<${user_prefix}${
-				self.client.user.nick
-			}> ${prefixText}${message.irc.stripColors()}`,
+			message: `<${user_prefix}${self.client.user.nick}> ${prefixText}${message.irc.stripColors()}`,
 		});
 	},
 
@@ -67,15 +55,8 @@ const messageHandler = {
 		self.client.action( target, message );
 	},
 
-	sendCommandMessage: async function(
-		target,
-		message,
-		prefix = false,
-		prefixText = "",
-		error = false
-	) {
-		const command =
-			prefix !== false ? self.generatePrefix( prefixText, error ) : "";
+	sendCommandMessage: async function( target, message, prefix = false, prefixText = "", error = false ) {
+		const command = prefix !== false ? self.generatePrefix( prefixText, error ) : "";
 
 		if( prefix !== false ) {
 			prefixText = !error ? prefixText.bold.green : prefixText.bold.red;
@@ -96,9 +77,7 @@ const messageHandler = {
 		self.client.say( target, command + message );
 		logger.info({
 			type:    target_str,
-			message: `<${user_prefix}${
-				self.client.user.nick
-			}> ${prefixText}${message.irc.stripColors()}`,
+			message: `<${user_prefix}${self.client.user.nick}> ${prefixText}${message.irc.stripColors()}`,
 		});
 	},
 };

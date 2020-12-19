@@ -3,11 +3,11 @@ const core = require( "../src/core-handler.js" ).coreHandler;
 let self;
 
 const admin = {
-	client:            "",
-	logger:            "",
-	name:              "Admin",
-	requirePermission: "admin",
-	commands:          {
+	client:     "",
+	logger:     "",
+	name:       "Admin",
+	permission: "admin",
+	commands:   {
 		reloadmodule: {
 			command: function( str, event, prefix = true ) {
 				const name   = self.name;

@@ -162,7 +162,7 @@ const youtube = {
 							duration = `${mins}m${secs}s`;
 						}
 
-						const publishedAt = core.utils.parseUnixTime( result.info.publishedAt );
+						const publishedAt = core.utils.parseTime( result.info.publishedAt );
 
 						const video_info = {
 							title:    result.info.title,

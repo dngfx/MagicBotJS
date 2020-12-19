@@ -59,6 +59,11 @@ const userHandler = {
 	},
 
 	checkPermission: function( user, permission ) {
+		if( permission === null ) {
+			return null;
+		}
+
+		console.log( self.users[ user ] );
 		if( !self.users[ user ].authenticated ) {
 			return false;
 		}
@@ -73,9 +78,13 @@ const userHandler = {
 
 		permissions = JSON.parse( permissions );
 
+		console.log( permissions );
+
 		if( permissions.includes( "*" ) || permissions.includes( permission ) ) {
 			return true;
 		}
+
+		return false;
 	},
 
 	changeNick: function( server, event ) {

@@ -17,19 +17,19 @@ const coreHandler = {
 	init_complete:  null,
 	api_keys:       null,
 
-	init: async function() {
+	init: async function( configPath ) {
 		if( self.init_complete !== null ) {
 			return;
 		}
 		self.db             = require( "./db.js" ).Database;
 		self.utils          = require( "./utils.js" ).utils;
 		self.moduleHandler  = require( "./module-handler.js" ).Modules;
-		self.eventHandler   = require( "./event-handler.js" ).EventHandler;
+		self.eventHandler   = require( "./event-handler.js" ).eventHandler;
 		self.messageHandler = require( "./message-handler.js" ).messageHandler;
 		self.channelHandler = require( "./channel-handler.js" ).channelHandler;
 		self.serverHandler  = require( "./server-handler.js" ).serverHandler;
 		self.userHandler    = require( "./user-handler.js" ).userHandler;
-		self.api_keys       = ini.parse( fs.readFileSync( path.join( __dirname, "..", ".config", "api.ini" ), "utf-8" ) ).bot;
+		self.api_keys       = ini.parse( fs.readFileSync( `${configPath}/api.ini`, "utf-8" ) ).bot;
 
 		self.init_complete = true;
 

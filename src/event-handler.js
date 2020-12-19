@@ -110,8 +110,21 @@ const eventReactor = {
 
 			if( core.moduleHandler.commandExists( cmdText ) ) {
 				const [ cmdModule, cmdName ] = core.moduleHandler.getModuleFromCmd( cmdText );
-				if( typeof cmdModule.requirePermission === "string" ) {
-					if( !core.userHandler.checkPermission( message.nick, cmdModule.requirePermission ) ) {
+
+				const modulePermission  = typeof cmdModule.permission === "string" ? cmdModule.permission : null;
+				const commandPermission =
+					typeof cmdModule.commands[ cmdName ].permission === "string"
+						? cmdModule.commands[ cmdName ].permission
+						: null;
+
+				// Check if there's a module-wide permission check in effect
+				if( modulePermission || commandPermission ) {
+					// Check permissions
+					const hasCommandPermission = core.userHandler.checkPermission( message.nick, commandPermission );
+					const hasModulePermission  = core.userHandler.checkPermission( message.nick, modulePermission );
+
+					// Check permission (If we don't have either command or module permissions, fail)
+					if( hasCommandPermission === false || hasModulePermission === false ) {
 						core.messageHandler.sendCommandMessage( target, `You do not have the required permissions for this command.`, true, cmdModule.name, true );
 
 						return;
@@ -120,6 +133,7 @@ const eventReactor = {
 
 				cmdModule.commands[ cmdName ].command( args, message );
 				self.firedCommand = true;
+
 				if( cmdModule.name === "Authentication" ) {
 					parsedMessage = `${cmdText} ********`;
 				}
@@ -301,4 +315,4 @@ const eventHandler = {
 };
 
 self                 = eventHandler;
-exports.EventHandler = eventHandler;
+exports.eventHandler = eventHandler;

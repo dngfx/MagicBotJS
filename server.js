@@ -1,12 +1,15 @@
-const colors   = require( "colors" );
-const irc      = require( "irc-framework" );
+const colors     = require( "colors" );
+const irc        = require( "irc-framework" );
+const path       = require( "path" );
+const configPath = path.join( __dirname, ".config" );
+
 const config   = require( "./.config/config.js" ).Config;
 const lang     = require( "./src/lang.js" ).lang;
 const Database = require( "./src/db.js" ).Database;
 Database.init();
 
 const core = require( "./src/core-handler.js" ).coreHandler;
-core.init();
+core.init( configPath );
 
 const eventHandler    = core.eventHandler;
 const serverHandler   = core.serverHandler;

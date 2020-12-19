@@ -69,7 +69,7 @@ const Utils = {
 		return [
 			hours,
 			minutes,
-			seconds 
+			seconds
 		];
 	},
 
@@ -90,7 +90,7 @@ const Utils = {
 		const sizes   = [
 			" B",
 			" KB",
-			" MB" 
+			" MB"
 		];
 
 		const i = Math.floor( Math.log( size ) / Math.log( k ) );
