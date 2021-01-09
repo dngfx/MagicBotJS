@@ -1,16 +1,26 @@
-const config   = require( "../.config/config.js" ).Config;
-const logger   = require( "./logging.js" ).Logger;
-const moment   = require( "moment" );
-const convert  = require( "./colour_convert/convert.js" ).colour_convert;
-const irccolor = require( "irc-colors" );
+const config      = require( "../.config/config.js" ).Config;
+const logger      = require( "./logging.js" ).Logger;
+const moment      = require( "moment" );
+const convert     = require( "./colour_convert/convert.js" ).colour_convert;
+const irccolor    = require( "irc-colors" );
+const BitlyClient = require( "bitly" ).BitlyClient;
 
 let self;
 
 const Utils = {
-	client: null,
+	client:    null,
+	bitly_api: null,
+	api_keys:  null,
 
 	init: function( client ) {
-		self.client = client;
+		self.client    = client;
+		self.bitly_api = new BitlyClient( self.api_keys[ "bitly-api-key" ] );
+	},
+
+	getShortLink: async function( url ) {
+		const result = await self.bitly_api.shorten( url );
+
+		return result;
 	},
 
 	getUnixTime: function() {
@@ -47,6 +57,10 @@ const Utils = {
 		return filename.replace( ".", "\u200c.\u200c" );
 	},
 
+	parseTwitterTime: function( time ) {
+		return moment( time, "ddd MMM D HH:mm:ss ZZ YYYY" );
+	},
+
 	convertYTTime: function( input ) {
 		const reptms = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/;
 		let hours    = 0,
@@ -69,7 +83,7 @@ const Utils = {
 		return [
 			hours,
 			minutes,
-			seconds
+			seconds 
 		];
 	},
 
@@ -90,7 +104,7 @@ const Utils = {
 		const sizes   = [
 			" B",
 			" KB",
-			" MB"
+			" MB" 
 		];
 
 		const i = Math.floor( Math.log( size ) / Math.log( k ) );
@@ -125,5 +139,6 @@ const Utils = {
 	},
 };
 
-self          = Utils;
+self = Utils;
+
 exports.utils = Utils;

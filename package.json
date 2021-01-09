@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "It's MagicBot, just in Node",
   "main": "server.js",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dngfx/MagicBotJS.git"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,7 +20,8 @@
   "license": "WTFPL",
   "dependencies": {
     "babel-eslint": "^10.1.0",
-    "better-sqlite3": "^7.1.1",
+    "better-sqlite3": "^7.1.2",
+    "bitly": "^7.1.2",
     "colors": "^1.4.0",
     "glob": "^7.1.6",
     "googleapis": "^66.0.0",
@@ -26,6 +32,7 @@
     "moment": "^2.29.1",
     "prettier": "^2.2.1",
     "request": "^2.88.2",
+    "twitter": "^1.7.1",
     "url-parse": "^1.4.7",
     "winston": "^3.3.3",
     "winston-timestamp-colorize": "^1.1.0"
@@ -33,7 +40,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/eslint-parser": "^7.12.1",
-    "eslint": "^7.15.0",
+    "eslint": "^7.17.0",
     "eslint-plugin-align-assignments": "^1.1.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-sort-keys-fix": "^1.1.1",

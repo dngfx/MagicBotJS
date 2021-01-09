@@ -76,6 +76,7 @@ const eventReactor = {
 		const ournick       = client.user.nick;
 		const target        = is_channel === true ? message.target : message.nick;
 		const maybe_command = message.message[ 0 ] === cmdPrefix || is_private === true;
+		let firedCommand    = false;
 
 		message.time = process.hrtime.bigint();
 
@@ -96,10 +97,9 @@ const eventReactor = {
 		}
 
 		if( maybe_command && ( is_channel || is_private ) ) {
-			self.firedCommand = false;
-			const cmd         = is_private ? message.message : message.message.split( cmdPrefix )[ 1 ];
-			let args          = cmd.split( " " );
-			let cmdText       = "";
+			const cmd   = is_private ? message.message : message.message.split( cmdPrefix )[ 1 ];
+			let args    = cmd.split( " " );
+			let cmdText = "";
 
 			if( args.length < 2 ) {
 				cmdText = cmd;
@@ -132,7 +132,7 @@ const eventReactor = {
 				}
 
 				cmdModule.commands[ cmdName ].command( args, message );
-				self.firedCommand = true;
+				firedCommand = true;
 
 				if( cmdModule.name === "Authentication" ) {
 					parsedMessage = `${cmdText} ********`;
@@ -140,11 +140,11 @@ const eventReactor = {
 			}
 		}
 
-		if( self.firedCommand === false ) {
+		if( firedCommand === false ) {
 			core.moduleHandler.handleHook( "onmessage", client, message );
 		}
 
-		self.firedCommand = false;
+		firedCommand = false;
 
 		const str = `<${prefix}${message.nick}> ${parsedMessage}`;
 

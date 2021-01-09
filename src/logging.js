@@ -44,7 +44,7 @@ const myFormat = format.combine(
 			type = info.type;
 		}
 
-		return `[${info.timestamp}] [${config.level.server_name.bold.magenta}] [${info.level.padEnd( 25 )}]: [${type.bold.padEnd( 25 )}]: ${core.utils.convert_irc_to_console( info.message )}`;
+		return `[${info.timestamp}] [${config.level.server_name.bold.magenta}] [${info.level.padEnd( 26 )}]: [${type.bold.padEnd( 25 )}]: ${core.utils.convert_irc_to_console( info.message )}`;
 	})
 );
 

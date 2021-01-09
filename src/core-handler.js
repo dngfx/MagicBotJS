@@ -23,6 +23,7 @@ const coreHandler = {
 		}
 		self.db             = require( "./db.js" ).Database;
 		self.utils          = require( "./utils.js" ).utils;
+		self.utils.api_keys = ini.parse( fs.readFileSync( `${configPath}/api.ini`, "utf-8" ) ).bot;
 		self.moduleHandler  = require( "./module-handler.js" ).Modules;
 		self.eventHandler   = require( "./event-handler.js" ).eventHandler;
 		self.messageHandler = require( "./message-handler.js" ).messageHandler;
@@ -49,6 +50,7 @@ const coreHandler = {
 		self.channelHandler.init( client );
 		self.serverHandler.init( client );
 		self.userHandler.init( client );
+		self.utils.init( client );
 	},
 };
 

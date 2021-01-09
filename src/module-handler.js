@@ -74,10 +74,20 @@ const moduleHandler = {
 		const fileName = self.loadedModules[ moduleName ].fileName;
 		const name     = require.resolve( fileName );
 
-		const functions       = self.moduleFunctions[ moduleName ];
+		const module          = self.loadedModules[ moduleName ];
+		const functions       = self.commandPathway[ moduleName ];
 		let functions_deleted = [];
 
-		Object.getOwnPropertyNames( functions ).forEach( ( function_name ) => {
+		console.log( module, functions, functions.aliases );
+
+		if( functions.hasOwnProperty( "aliases" ) ) {
+			for( const alias in functions[ "aliases" ] ) {
+				const a = functions[ "aliases" ][ alias ];
+				console.log( "Deleting alias", a );
+				delete self.aliasPathways[ a ];
+			}
+		}
+		Object.getOwnPropertyNames( module.commands ).forEach( ( function_name ) => {
 			functions_deleted.push( function_name );
 			delete self.commandPathway[ function_name ];
 		});
@@ -90,6 +100,7 @@ const moduleHandler = {
 
 		delete self.moduleFunctions[ moduleName ];
 		delete self.loadedModules[ moduleName ];
+		delete self.commandPathway[ moduleName ];
 		delete require.cache[ name ];
 
 		logger.debug({
@@ -143,7 +154,7 @@ const moduleHandler = {
 					// Are we clashing with a function that already exists?
 					if( self.commandPathway.hasOwnProperty( name ) || self.aliasPathways.hasOwnProperty( name ) ) {
 						// Put a warning in
-						logger.warning({
+						logger.warn({
 							type:    lang.SMODULES,
 							message: `Assigning alias ${name.bold} failed. Function or alias ${name.bold} already exists.`,
 						});
@@ -167,20 +178,6 @@ const moduleHandler = {
 					message: `Assigned hooks for command ${cmdName.bold}: ${JSON.stringify( hooks )}`,
 				});
 			}
-
-			/*if( isFunction === true ) {
-				if( typeof self.commandPathway[ cmdName ] !== "undefined" ) {
-					logger.error({
-						type:    lang.SMODULES,
-						message: `Could not redefine function $ cmdName.bold}`,
-					});
-
-					return [ false, "Could not redefine function " + cmdName ];
-				}
-
-				self.moduleFunctions[ moduleName ][ cmdName ] = true;
-				self.commandPathway[ cmdName ]                = moduleName;
-			}*/
 		});
 
 		const thisModule  = self.loadedModules[ moduleName ];
@@ -192,10 +189,10 @@ const moduleHandler = {
 	handleHook: function( hook, client, message ) {
 		// We hook by command now, not by entire module (hurrah)
 		Object.getOwnPropertyNames( self.commandPathway ).forEach( ( cmdName ) => {
-			logger.silly({
+			/*logger.verbose({
 				type:    lang.SMODULES,
 				message: `Checking command ${cmdName.bold} for hook ${hook.bold}`,
-			});
+			});*/
 
 			let pathway;
 			if( typeof self.commandPathway[ cmdName ] !== "undefined" ) {
