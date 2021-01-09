@@ -78,9 +78,7 @@ const moduleHandler = {
 		const functions       = self.commandPathway[ moduleName ];
 		let functions_deleted = [];
 
-		console.log( module, functions, functions.aliases );
-
-		if( functions.hasOwnProperty( "aliases" ) ) {
+		if( functions !== undefined && functions.hasOwnProperty( "aliases" ) ) {
 			for( const alias in functions[ "aliases" ] ) {
 				const a = functions[ "aliases" ][ alias ];
 				console.log( "Deleting alias", a );
