@@ -53,8 +53,6 @@ const reddit = {
 					id 
 				] = comment;
 
-				console.log( fullUrl, subreddit, id );
-
 				const res = self.reddit_api
 					._get({
 						uri: `r/${subreddit}/comments/${id}`,
