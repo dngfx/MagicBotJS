@@ -72,7 +72,7 @@ const database = {
 		const stmt = db.prepare( "SELECT user_id FROM users WHERE LOWER(nickname) = ?" );
 		const row  = stmt.get( nick.toLowerCase() );
 
-		return row.user_id;
+		return typeof row !== "undefined" ? row.user_id : false;
 	},
 
 	userSettingExists: function( id, setting ) {
