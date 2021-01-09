@@ -71,9 +71,9 @@ const youtube = {
 
 						const video_info = {
 							title:    result.info.title,
-							posted:   core.utils.formatToStandardTime( result.info.publishedAt ),
+							posted:   core.utils.formatToStandardTime( result.info.publishedAt ).irc.bold(),
 							poster:   result.info.channelTitle,
-							views:    core.utils.fuzzFormatNumber( result.stats.viewCount, 1 ),
+							views:    core.utils.fuzzFormatNumber( result.stats.viewCount, 1 ).irc.bold(),
 							likes:    result.stats.likeCount + "↑",
 							dislikes: "↓" + result.stats.dislikeCount,
 							duration: duration,
@@ -83,7 +83,7 @@ const youtube = {
 							video_info.duration
 						}) uploaded by ${video_info.poster.irc.bold()} on ${video_info.posted}, ${
 							video_info.views
-						} views (${video_info.likes.irc.green()} ${video_info.dislikes.irc.red()}) - ${shortlink}`;
+						} views (${video_info.likes.irc.green()} ${video_info.dislikes.irc.red()}) — ${shortlink}`;
 
 						core.messageHandler.sendCommandMessage( target, message, true, self.name );
 					});
@@ -166,9 +166,9 @@ const youtube = {
 
 						const video_info = {
 							title:    result.info.title,
-							posted:   core.utils.formatToFancyTime( publishedAt ),
+							posted:   core.utils.formatToFancyTime( publishedAt ).irc.bold(),
 							poster:   result.info.channelTitle,
-							views:    core.utils.fuzzFormatNumber( result.stats.viewCount ),
+							views:    core.utils.fuzzFormatNumber( result.stats.viewCount ).irc.bold(),
 							likes:    result.stats.likeCount + "↑",
 							dislikes: "↓" + result.stats.dislikeCount,
 							duration: duration,
@@ -178,7 +178,7 @@ const youtube = {
 							video_info.duration
 						}) uploaded by ${video_info.poster.irc.bold()} on ${video_info.posted}, ${
 							video_info.views
-						} views (${video_info.likes.irc.green()} ${video_info.dislikes.irc.red()}) - ${shortlink}`;
+						} views (${video_info.likes.irc.green()} ${video_info.dislikes.irc.red()}) — ${shortlink}`;
 
 						core.messageHandler.sendCommandMessage( target, message, true, self.name );
 					});

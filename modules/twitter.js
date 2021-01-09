@@ -71,8 +71,8 @@ const twitter = {
 			},
 		},
 
-		tweet: {
-			aliases: [ "tw" ],
+		twitter: {
+			aliases: [ "tw", "tweet" ],
 			command: async function( str, event, prefix = true ) {
 				const target     = event.target;
 				const is_channel = target[ 0 ] === "#";
