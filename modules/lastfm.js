@@ -54,7 +54,7 @@ const lastfm = {
 				}
 
 				const username = str;
-				const userinfo = self.lastfm_api.request( "user.getinfo", {
+				self.lastfm_api.request( "user.getinfo", {
 					user:     username,
 					handlers: {
 						success: ( data ) => {

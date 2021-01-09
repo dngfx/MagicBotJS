@@ -121,13 +121,14 @@ const youtube = {
 			command: async function( str, event, prefix = true ) {
 				const target     = event.target;
 				const is_channel = target[ 0 ] === "#";
-				const query      = str.join( " " );
 
-				if( query === "yt" ) {
+				if( str[ 0 ] === "yt" && str.length === 1 ) {
 					core.messageHandler.sendCommandMessage( target, `You must provide a search term`, prefix, self.name, true );
 
 					return;
 				}
+
+				const query = str.join( " " );
 
 				const video_id = await self.commands.search.command( query );
 
@@ -151,15 +152,15 @@ const youtube = {
 							details: res.data.items[ 0 ].contentDetails,
 						};
 
-						let duration = core.utils.formatToStandardTime( result.details.duration );
+						let duration = core.utils.convertYTTime( result.details.duration );
 						const hours  = duration[ 0 ];
 						const mins   = duration[ 1 ];
 						const secs   = duration[ 2 ];
 
 						if( hours !== 0 ) {
-							duration = `${hours}h${mins}m${secs}s`;
+							duration = `${hours}h ${mins}m ${secs}s`;
 						} else {
-							duration = `${mins}m${secs}s`;
+							duration = `${mins}m ${secs}s`;
 						}
 
 						const publishedAt = core.utils.parseTime( result.info.publishedAt );
