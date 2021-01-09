@@ -89,6 +89,13 @@ const database = {
 		return typeof row === "undefined" ? false : row.value;
 	},
 
+	getChannelByName: function( channel ) {
+		const stmt = db.prepare( "SELECT channel_id, server_id FROM channels WHERE name = ?" );
+		const row  = stmt.get( channel );
+
+		return typeof row === "undefined" ? false : row.value;
+	},
+
 	insertOneRow: function( table, fields, ignore_server_id = null ) {
 		if( ignore_server_id !== true ) {
 			fields.server_id = String( fields.server_id );

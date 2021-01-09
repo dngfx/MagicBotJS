@@ -11,21 +11,6 @@ const lastfm = {
 	lastfm_api:   null,
 	showUserInfo: function( data, target ) {
 		const user = data.user;
-		/*user: {
-			playlists: '0',
-			playcount: '71911',
-			gender: 'n',
-			name: 'dongfix',
-			subscriber: '0',
-			url: 'https://www.last.fm/user/dongfix',
-			country: 'United Kingdom',
-			image: [ [Object], [Object], [Object], [Object] ],
-			registered: { unixtime: '1259499791', '#text': 1259499791 },
-			type: 'user',
-			age: '0',
-			bootstrap: '0',
-			realname: 'Dan'
-		  }*/
 
 		const time = core.utils.parseUnixTime( parseInt( user.registered.unixtime ) );
 		const info = {
