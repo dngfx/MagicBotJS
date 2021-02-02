@@ -42,7 +42,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/eslint-parser": "^7.12.1",
-    "eslint": "^7.17.0",
+    "eslint": "^7.19.0",
     "eslint-plugin-align-assignments": "^1.1.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-sort-keys-fix": "^1.1.1",
